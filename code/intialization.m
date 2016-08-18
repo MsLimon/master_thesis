@@ -2,6 +2,14 @@
 
 % * Parameter initialization *
 
+% Parameters inside of the optimization algorithm are always used in a
+% normalized form (on the interval [0,1]). When the parameters are
+% passed to the COMSOL solver, they are brought back to the
+% interval defined by their boundaries. Therefore, we define those
+% boundaries with a the function SETPARAMETERBOUNDARIES
+% For completeness, we also define the inverse function NORMALIZEPARAMETERS
+% TODO: implement this function in a separated script
+
 % + Fixed parameters + --> obtain from COMSOL model
 
 % + Parameters to optimize +
@@ -39,16 +47,11 @@ g('claddingThickness'), c('A1x'), c('wA1'), c('A2y'), c('B1x'), c('wB1')];
 
 
 % TODO: define the dependent/fixed bezier parameters as a function of the
-% otherGeometrialParameters
-
-% * Set parameter boundaries * --> check COMSOL model
-
-% TODO: Think of the way to perform the random search and adapt data
-% structures accordingly (do we need to create a setParameter function?)
-% How are the parameters going to be obtained?
+% otherGeometrialParameters --> check COMSOL model
 
 % TODO: learn how to iterate over non-numeric values
-% IDEA: try to use a vectorized form of random number generator instead.
+% IDEA: try to use a vectorized form of random number generator
+% instead.(Done)
 
 % * Preallocate misalignmentMatrix *
 

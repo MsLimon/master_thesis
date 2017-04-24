@@ -1,3 +1,9 @@
+% Developed by Marta Timon
+% University of Freiburg, Germany
+% Last Update: April 24, 2017
+
+% Create a matlab figure depicting a trasverse electromagnetic wave
+
 % Create figure
 figure1 = figure;
 

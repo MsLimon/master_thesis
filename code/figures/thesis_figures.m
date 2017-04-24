@@ -1,3 +1,9 @@
+% Developed by Marta Timon
+% University of Freiburg, Germany
+% Last Update: April 24, 2017
+
+% Create a matlab figure depicting a trasverse electromagnetic wave
+
 % select number of point to plot
 n = 100;
 % select the number of arrows (number of points of x with arrows)

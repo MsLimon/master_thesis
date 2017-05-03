@@ -1,10 +1,16 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: April 25, 2017
+% Last Update: May 03, 2017
 
 % Bayesian optimization on geometrical space without misalignment. Parameter space
 % is (beta, taper_x, y_in)
-% 
+
+% Important script parameters:
+% - maxTime : specify walltime for the termination condition of the optimizer 
+% - infile (in objective function) : file containining the model
+% - I_lowerBound (in objective function) : intensity lower bound
+
+% TODO - save the generated plots
 
 if isunix == 1
     % Important: adjust path of the COMSOL43/mli directory if necessary
@@ -13,32 +19,46 @@ if isunix == 1
     % Start the COMSOL server (for Windows only. This command should be changed
     % when running the script in a different OS)
     system('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver &');
+    % set termination condition to walltime for bayesopt. in seconds
+    maxTime = date2sec(0,5,0,0); % date2sec(days,hours,minutes,seconds)
 else
    addpath('C:\Program Files\COMSOL\COMSOL52a\Multiphysics\mli')
     % connect MATLAB and COMSOL server
     system('C:\Program Files\COMSOL\COMSOL52a\Multiphysics\bin\win64\comsolmphserver.exe &');
+    % set termination condition to walltime for bayesopt. in seconds
+    maxTime = 100;
 end
 
 mphstart();
-% make the random generator different every time that matlab starts
+% make the random generator different every time that matlab starts.
+% This affects the intialization of bayesopt
 rng('shuffle');
 % save the current random generator settings in s:
 %s = rng;
 
+% define the optimization parameters
 beta = optimizableVariable('beta',[0,0.0652]); %unit: radians
 taperx = optimizableVariable('taperx',[200,230]); %unit: micrometers
 yin = optimizableVariable('yin',[5,20]); %unit: micrometers
 
+
 try
     import com.comsol.model.*
     import com.comsol.model.util.*
-
+    
+    % specify logfile name
+    logfile = 'logfile_exp2.txt';
+    % start logfile
+    ModelUtil.showProgress([logfile]);
+    % create a handle for the objective function
     fun = @(x)comsolblackbox(x.beta,x.taperx,x.yin);
-
+    % call bayesian optimization and store the results
     results = bayesopt(fun,[beta,taperx,yin],'Verbose',1,...
         'IsObjectiveDeterministic',true,...
-    'NumCoupledConstraints',1,...
-        'AcquisitionFunctionName','expected-improvement-plus')
+        'NumCoupledConstraints',1,...
+        'MaxTime',maxTime,... % set walltime
+        'AcquisitionFunctionName','expected-improvement-plus',...
+        'OutputFcn',{@saveToFile}) % save intermediate results into a file
     
     ModelUtil.disconnect;
 catch exception
@@ -50,22 +70,21 @@ end
 function [objective, constraint] = comsolblackbox(beta,taperx,yin)
     import com.comsol.model.*
     import com.comsol.model.util.*
-    % ModelUtil.showProgress(true); %comment this line out when using the cluster
-    % set the names of the input and output files
-    infile = 'glass_feedthrough_model.mph';
-    logfile = 'logfile_exp2.txt';
+   
+    % specify I_lowerBound
+    I_lowerBound = 200; %units: mW/mm^2
 
     if isunix == 1
+        % set the name of the input model file
+        infile = 'glass_feedthrough_model_655_6epw.mph';
     else
+        infile = 'glass_feedthrough_model.mph';
         ModelUtil.showProgress(true);
     end
-    % save the logfile
-    ModelUtil.showProgress([logfile]);
     % load the model
     model = mphload(infile);
 
-    % pass all parameter sets to the COMSOL model, evaluate the power and
-    % store it in the results matrix
+    % pass geometrical parameters to the COMSOL model
     model.param.set('beta', [num2str(beta),'[rad]'], 'Angle of later facet');
     model.param.set('taper_x', [num2str(taperx),'[um]'], 'Length of the taper in propagation direction');
     model.param.set('y_in', [num2str(yin),'[um]'], 'Taper height on the input facet');
@@ -90,8 +109,6 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin)
     % satisfied. Here the constraint is satisfied if the intensity is
     % greater than I_lowerBound
     
-    %specify I_lowerBound
-    I_lowerBound = 200;
     % set the constraint
     constraint = I_lowerBound - I;
     % remove the model

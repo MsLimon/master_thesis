@@ -1,3 +1,9 @@
+% Developed by Marta Timon
+% University of Freiburg, Germany
+% Last Update: April 24, 2017
+
+% Create a matlab figure depicting a trasverse electromagnetic wave
+
 % select number of point to plot
 n = 100;
 % select the number of arrows (number of points of x with arrows)
@@ -20,9 +26,19 @@ z0_quiver = zeroes(1:div:end);
 % Create figure
 figure1 = figure;
 
-% Create axes
+% Create axes with a handle
 axes1 = axes('Parent',figure1);
+% create a handle for the axis
+%axes1 = gca;
 hold(axes1,'on');
+
+% reverse the direction of the y dimension
+axes1.YDir = 'reverse';
+% remove the default axis
+set(gca,'visible','off');
+% change viewing angle
+view(axes1,[9.70000000000003 27.6]);
+
 
 % select figure size
 f_width = 1000;
@@ -31,27 +47,25 @@ figure1.Position = [100, 100, f_width, f_height];
 % set autoscale for the arrows
 autoscale = 0.495;
 
-% create a handle for the axis
-ax = gca;
-% reverse the direction of the y dimension
-ax.YDir = 'reverse';
-% remove the default axis
-set(gca,'visible','off');
-
 hold on
 
 %select line width for the arrows (the function is 0.7 times that value)
+<<<<<<< HEAD
 linewidth = 1.7;
 % change viewing angle
 view(axes1,[9.70000000000003 27.6]);
+=======
+linewidth = 2;
+
+>>>>>>> origin/master
 
 %plot the stuff
 
 %plot electric field
 color_ef= 1;
-ax.ColorOrderIndex = color_ef;
+axes1.ColorOrderIndex = color_ef;
 plot3(x,zeroes,z,'-.','LineWidth',linewidth*0.7);
-ax.ColorOrderIndex = color_ef;
+axes1.ColorOrderIndex = color_ef;
 q=quiver3(i,z0_quiver,z0_quiver,z0_quiver,z0_quiver,z_quiver,'LineWidth',linewidth);
 q.MaxHeadSize = 0.2;
 q.AutoScaleFactor = autoscale;
@@ -59,9 +73,9 @@ q.AutoScaleFactor = autoscale;
 
 %plot magnetic field
 color_mf = 7;
-ax.ColorOrderIndex = color_mf;
+axes1.ColorOrderIndex = color_mf;
 plot3(x,y,zeroes,'-.','LineWidth',linewidth*0.7);
-ax.ColorOrderIndex = color_mf;
+axes1.ColorOrderIndex = color_mf;
 q2=quiver3(i,z0_quiver,z0_quiver,z0_quiver,z_quiver,z0_quiver,'LineWidth',linewidth);
 q2.MaxHeadSize = 0.2;
 q2.AutoScaleFactor = autoscale;
@@ -95,16 +109,19 @@ q4=quiver3(x_coord,y_coord,z_coord,arrow_lenght,0,0,'k','LineWidth',linewidth);
 q4.MaxHeadSize = 3*arrow_autoscale;
 q4.AutoScaleFactor = 0.3;
 % y axis
-ax.ColorOrderIndex = color_mf;
+axes1.ColorOrderIndex = color_mf;
 q5=quiver3(x_coord,y_coord,z_coord,0,arrow_lenght,0,'LineWidth',linewidth);
 q5.MaxHeadSize = 5*arrow_autoscale;
 q5.AutoScaleFactor = 0.25;
 % z axis
-ax.ColorOrderIndex = color_ef;
+axes1.ColorOrderIndex = color_ef;
 q6=quiver3(x_coord,y_coord,z_coord,0,0,arrow_lenght,'LineWidth',linewidth);
 q6.MaxHeadSize = 3*arrow_autoscale;
 q6.AutoScaleFactor = 0.17;
 hold off
 % save the figure to a png file
 print(figure1,'1Dtransverse_wave','-r200','-dpng')
+<<<<<<< HEAD
 print(figure1,'1Dtransverse_wave','-depsc','-tiff','-r300')
+=======
+>>>>>>> origin/master

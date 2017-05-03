@@ -41,7 +41,7 @@ set(gca,'visible','off');
 hold on
 
 %select line width for the arrows (the function is 0.7 times that value)
-linewidth = 2;
+linewidth = 1.7;
 % change viewing angle
 view(axes1,[9.70000000000003 27.6]);
 
@@ -107,3 +107,4 @@ q6.AutoScaleFactor = 0.17;
 hold off
 % save the figure to a png file
 print(figure1,'1Dtransverse_wave','-r200','-dpng')
+print(figure1,'1Dtransverse_wave','-depsc','-tiff','-r300')

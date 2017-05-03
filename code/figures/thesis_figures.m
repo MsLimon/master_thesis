@@ -39,23 +39,19 @@ set(gca,'visible','off');
 % change viewing angle
 view(axes1,[9.70000000000003 27.6]);
 
-
 % select figure size
 f_width = 1000;
 f_height = 400;
 figure1.Position = [100, 100, f_width, f_height];
-% set autoscale for the arrows
-autoscale = 0.495;
 
 hold on
 
+%plot the stuff
+
 %select line width for the arrows (the function is 0.7 times that value)
 linewidth = 1.7;
-% change viewing angle
-view(axes1,[9.70000000000003 27.6]);
-
-
-%plot the stuff
+% set autoscale for the arrows
+autoscale = 0.495;
 
 %plot electric field
 color_ef= 1;

@@ -11,7 +11,7 @@ function M = generatePoints(n)
     misalignment_dim = 3;
     % number of misalignment points
     nMisPoints = n;
-    
+        
     % Define probability distribution of misalignment space
     pd = cell(1,misalignment_dim);
     % distribution corresponding to the misalignment on x
@@ -27,6 +27,7 @@ function M = generatePoints(n)
     % truncate alpha distribution (don't allow values greater than alpha)
     pd{3} = truncate(pd{3},-3,3);
     
-    % % generate misalignment samples
-    M = lhsindependent(pd,nMisPoints);
+    % % generate misalignment samples and add the perfectly aligned case at
+    % the beginning
+    M = [0 0 0;lhsindependent(pd,nMisPoints-1)];
 end

@@ -34,8 +34,12 @@ if isunix == 1 % on the cluster
     addpath('~/Comsol/comsol52a/multiphysics/mli')
     % Run script once the server is started or use the command below
     % Start the COMSOL server 
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -mpirsh pdsh -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,TMPDIR);
-    system(system_command);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,TMPDIR);
+    [status,out] = system(system_command);
+    disp('result of system command:');
+    disp(out);
+    disp('status');
+    disp(status);
     pause(30);
 else % on the local machine (Windows)
     % add path to utils
@@ -127,7 +131,7 @@ try
     R = zeros(nMisPoints,misalignment_dim+1);
     R(:,1:end-1) = M;
 
-    for i = 8:nGeomPoints
+    for i = 16:nGeomPoints
         if i ==1
             % preallocate the data struct
             data = struct('geometry',[],'misalignment',M,'results',R,'Iline',[]);

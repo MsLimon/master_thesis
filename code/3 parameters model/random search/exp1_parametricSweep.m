@@ -37,7 +37,7 @@ if isunix == 1 % on the cluster
     % Run script once the server is started or use the command below
     % Start the COMSOL server 
     %system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -f %s -tmpdir %s -autosave off -mpidebug 10 &',PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,TMPDIR);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
     system(system_command);
     pause(15);
 else % on the local machine (Windows)

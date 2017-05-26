@@ -34,12 +34,13 @@ if isunix == 1 % on the cluster
     addpath('~/Comsol/comsol52a/multiphysics/mli')
     % Run script once the server is started or use the command below
     % Start the COMSOL server 
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,TMPDIR);
-    [status,out] = system(system_command);
-    disp('result of system command:');
-    disp(out);
-    disp('status');
-    disp(status);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
+    system(system_command);
+%     [status,out] = system(system_command);
+%     disp('result of system command:');
+%     disp(out);
+%     disp('status');
+%     disp(status);
     pause(30);
 else % on the local machine (Windows)
     % add path to utils

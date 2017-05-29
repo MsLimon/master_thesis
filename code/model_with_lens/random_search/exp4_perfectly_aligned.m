@@ -33,7 +33,7 @@ if isunix == 1
     % Start the COMSOL server (for Windows only. This command should be changed
     % when running the script in a different OS)
     %system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -mpirsh pdsh -tmpdir %s -autosave off -mpidebug 10 &',NN,NP,PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',TMPDIR);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',MY_TMPDIR);
     system(system_command);
     pause(15);
 else
@@ -67,6 +67,7 @@ try
     end
     % save the logfile
     ModelUtil.showProgress([outpath logfile]);
+    
     % make the random generator different every time that matlab starts
     rng('shuffle');
     % save the current random generator settings in s:
@@ -103,6 +104,9 @@ try
         G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
         G(:,4) = (D0_max - D0_min).*G(:,4)+ D0_min;
         G(:,5) = (w_max - w_min).*G(:,5)+ w_min;
+        
+        % save the explored geometry
+        dlmwrite([outpath 'geometry.txt'], G);
     end
     % prealocate results matrix R. Each row of R contain a set of
     % geometrical parameters and the power obtained when running the model with

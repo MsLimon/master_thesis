@@ -19,7 +19,7 @@ if isunix == 1
     % Start the COMSOL server (for Windows only. This command should be changed
     % when running the script in a different OS)
 %     system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -f %s -tmpdir %s -autosave off &',PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',TMPDIR);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',MY_TMPDIR);
     system(system_command);
     % set termination condition to walltime for bayesopt. in seconds
     maxTime = date2sec(0,20,0,0); % date2sec(days,hours,minutes,seconds)

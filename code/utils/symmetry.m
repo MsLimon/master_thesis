@@ -1,4 +1,4 @@
-function m = symmetry(nMisPoints,Iline_data)
+function s = symmetry(nMisPoints,Iline_data,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 23, 2017
@@ -23,15 +23,44 @@ function m = symmetry(nMisPoints,Iline_data)
 [n,m] = size(Iline_data);
 Iline_data = Iline_data(:);
 Iline_data = reshape(Iline_data,[n/nMisPoints,nMisPoints*m]);
+num_points = size(Iline_data,1);
+% 
+p = inputParser;
+%weights = ones(num_points,1);
+defaultWeights = 'uniform';
+validWeights = {'uniform','gaussian','linear'};
+checkWeights = @(x)any(validatestring(x,validWeights));
+addParameter(p,'weights',defaultWeights,checkWeights);
 
-m = zeros(1,nMisPoints);
+
+parse(p,varargin{:});
+
+weight_type = p.Results.weights;
+
+switch weight_type
+    case 'uniform' 
+        w = ones(num_points,1);
+    case 'gaussian'
+        w = gausswin(num_points);
+    case 'linear'
+        i = [1:num_points];
+        w = (-i + (num_points+1));
+    otherwise
+        warning('Unexpected weight type. Default uniform weights used instead')
+        w = ones(num_points,1);
+end
+
+s = zeros(1,nMisPoints);
 
 for i = 1:nMisPoints
 x = Iline_data(:,i);
 f = Iline_data(:,nMisPoints+i);
 f_plus = 0.5 * (f + flip(f)); 
-f_minus = 0.5 * (f - flip(f)); 
-m(i) = norm(f_plus) / (norm(f_plus) + norm(f_minus));
+f_minus = 0.5 * (f - flip(f));
+norm_f_plus = sqrt(sum((f_plus.^2).*w)) ;
+norm_f_minus = sqrt(sum((f_minus.^2).*w));
+%s(i) = norm(f_minus) / (norm(f_plus) + norm(f_minus));
+s(i) = norm_f_minus / (norm_f_plus + norm_f_minus);
 end
 
 end

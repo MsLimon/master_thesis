@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 10, 2017
+% Last Update: June 06, 2017
 % 
 % Random search on geometrical space without misalignment. Parameter space
 % is (beta,taperx,yin,D0,w)
@@ -46,10 +46,9 @@ else
 end
 
 mphstart();
+import com.comsol.model.*
+import com.comsol.model.util.*
 try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
-    
     % set the names of the input and output files
     logfile = 'logfile_exp4.txt';
     resultsfile = 'exp4_results.txt';
@@ -59,11 +58,9 @@ try
         outpath = './';
         % set the minimum element size. in the cluster the 655nm wavelenght
         % is used therefore:
-        h_max = 1.0917e-1; %unit: micrometers
-        % TODO - change this!! (find a solution so that it is not hardcored. Can you retrieve parameter values from comsol?)
+
     else
         outpath = './results/';
-        h_max = 2 / 6; %unit: micrometers
     end
     % save the logfile
     ModelUtil.showProgress([outpath logfile]);
@@ -79,32 +76,10 @@ try
         G = dlmread([outpath 'geometry.txt']);
         [nGeomPoints,searchSpace_dim] = size(G);
     else
-        % dimension of search space(beta, taper_x, y_in)
-        searchSpace_dim = 5;
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 30;
-        % create random geometrical parameter matrix G. Each row of the matrix 
-        % contains a set of geometrical parameters: beta, taper_x, y_in
-        G = rand(nGeomPoints,searchSpace_dim);
-        % set bounds for the geometrical parameters
-        beta_min = 0;
-        beta_max = 0.0652; %unit: radians
-        taperx_min = 200; %unit: micrometers
-        taperx_max = 230; %unit: micrometers
-        yin_min = 5; %unit: micrometers
-        yin_max = 20; %unit: micrometers
-        D0_min = h_max; %unit: micrometers
-        D0_max = 20; %unit: micrometers
-        w_min = 0.1; % unitless
-        w_max = 5; % unitless
-        
-        % change limits of the geometrical parameter matrix G
-        G(:,1) = (beta_max - beta_min).*G(:,1)+ beta_min;
-        G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
-        G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
-        G(:,4) = (D0_max - D0_min).*G(:,4)+ D0_min;
-        G(:,5) = (w_max - w_min).*G(:,5)+ w_min;
-        
+        nGeomPoints = 20;
+        G = generateGeom(nGeomPoints,'model','lens');
+        [nGeomPoints,searchSpace_dim] = size(G);
         % save the explored geometry
         dlmwrite([outpath 'geometry.txt'], G);
     end

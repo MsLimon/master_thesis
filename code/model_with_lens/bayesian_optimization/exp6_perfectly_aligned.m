@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 10, 2017
+% Last Update: June 06, 2017
 
 % Bayesian optimization on geometrical space without misalignment. Parameter space
 % is (beta, taper_x, y_in,D0,w)
@@ -52,10 +52,9 @@ yin = optimizableVariable('yin',[5,20]); %unit: micrometers
 D0 = optimizableVariable('D0',[h_max,20]); %unit: micrometers
 w = optimizableVariable('w',[0.1,5]); % unitless
 
+import com.comsol.model.*
+import com.comsol.model.util.*
 try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
-    
     % specify logfile name
     logfile = 'logfile_exp6.txt';
     % start logfile

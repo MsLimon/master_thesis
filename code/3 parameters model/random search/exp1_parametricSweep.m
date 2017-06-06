@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 10, 2017
+% Last Update: June 06, 2017
 % 
 % Random search on geometrical space with misalignment. Parameter space
 % is (beta, taper_x, y_in)
@@ -27,8 +27,6 @@
 % - 'Iline'= Iline_data : matrix containing the intensity profile at the
 % output facet
 
-% clear all 
-% clc
 if isunix == 1 % on the cluster
     % add path to utils
     addpath('~/utils');
@@ -37,7 +35,7 @@ if isunix == 1 % on the cluster
     % Run script once the server is started or use the command below
     % Start the COMSOL server 
     %system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -f %s -tmpdir %s -autosave off -mpidebug 10 &',PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
+    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
     system(system_command);
     pause(15);
 else % on the local machine (Windows)
@@ -49,10 +47,9 @@ end
 
 % connect MATLAB and COMSOL server
 mphstart();
+import com.comsol.model.*
+import com.comsol.model.util.*
 try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
-
     % set the paths and filenames
     logfile = 'logfile_exp1.txt';
     outstruct_name = 'exp1_results.mat';
@@ -60,10 +57,8 @@ try
     reuse_misalignment = false;
     if isunix == 1
         outpath = '';
-        inpath = '';
     else
         outpath = './results/';
-        inpath = '../';
         ModelUtil.showProgress(true);
     end
     % save the logfile
@@ -77,24 +72,12 @@ try
         G = dlmread([outpath 'geometry.txt']);
         [nGeomPoints,searchSpace_dim] = size(G);
     else
-        % dimension of search space(beta, taper_x, y_in)
-        searchSpace_dim = 3;
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 1;
-        % create random geometrical parameter matrix G. Each row of the matrix 
-        % contains a set of geometrical parameters (beta, taper_x, y_in)
-        G = rand(nGeomPoints,searchSpace_dim);
-        % set bounds for the geometrical parameters
-        beta_min = 0;
-        beta_max = 0.0652; %unit: radians
-        taperx_min = 200; %unit: micrometers
-        taperx_max = 230; % '' ''
-        yin_min = 5; % '' ''
-        yin_max = 20; % '' ''
-        % change limits of the geometrical parameter matrix G
-        G(:,1) = (beta_max - beta_min).*G(:,1)+ beta_min;
-        G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
-        G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
+        nGeomPoints = 20;
+        G = generateGeom(nGeomPoints);
+        [nGeomPoints,searchSpace_dim] = size(G);
+        % save the generated geometry
+        dlmwrite([outpath 'geometry.txt'], G);
     end
     
     if reuse_misalignment == true
@@ -107,17 +90,18 @@ try
         nMisPoints = 120;
         % % generate misalignment samples
         M = generatePoints(nMisPoints);
+        % save misalignment matrix
+        dlmwrite([outpath 'misalignment_points.txt'], M);
     end
 
     % preallocate results matrix R. Each row of R contain a set of
     % misalignment parameters and the power obtained when running the model with
     % those parameters
     R = zeros(nMisPoints,misalignment_dim+1);
-    R(:,1:end-1) = M;
-    
+    R(:,1:end-1) = M;   
 
     for i = 1:nGeomPoints
-        if i ==1
+        if i==1
             % preallocate the data struct
             data = struct('geometry',[],'misalignment',M,'results',R,'Iline',[]);
         else
@@ -130,9 +114,13 @@ try
         R(:,end) = P;
         % create a struct to store the data
         data(i) = struct('geometry',current_geometry,'misalignment', M,'results',R,'Iline',Iline_data);
+        if i==1
+            save([outpath outstruct_name], 'data');
+        else
+            save([outpath outstruct_name], 'data','-append');
+        end
     end
     
-    save([outpath outstruct_name], 'data');
     % To load the data structure from a .mat file use the command
     % load(struct_name);
     ModelUtil.clear;

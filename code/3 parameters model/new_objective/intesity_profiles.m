@@ -5,16 +5,6 @@
 % Plot the intensity profile of the simulation outcome of a tapered waveguide
 % for 10 different misalignments
 
-% TODO:
-% - Draw 3 random geometries (from random search exp) misalignments 
-% - modify blackbox so it generates 2 misalignment points/accept as input
-% misalignment matrix
-% - separate different line plots from the extracted file (see
-% test_plotMultipleLines)
-% - copy comsol model file to "3 parameters model" folder
-% - create legend with misalignment values
-% - change Comsol file for the cluster (655nm)
-
 % dependencies : utils folder
 
 if isunix == 1
@@ -43,8 +33,8 @@ nMisPoints = 4;
 M = generatePoints(nMisPoints);
 
 % call the comsolblackbox_mis function
-[P1,Iline_data1] = comsolblackbox_mis(0.06,60,20,M);
-[P2,Iline_data2] = comsolblackbox_mis(0,60,5,M);
+[P1,Iline_data1] = test_comsol(0.06,60,20,M);
+[P2,Iline_data2] = test_comsol(0,60,5,M);
 ModelUtil.disconnect;
 
 % separate the lines for each misalignment point

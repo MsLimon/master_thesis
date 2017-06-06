@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 29, 2017
+% Last Update: June 06, 2017
 % 
 % Random search on geometrical space without misalignment. Parameter space
 % is (beta, taper_x, y_in)
@@ -53,10 +53,10 @@ else
 end
 
 mphstart();
-try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
+import com.comsol.model.*
+import com.comsol.model.util.*
 
+try
     % set the names of the input and output files
     logfile = 'logfile_exp0.txt';
     resultsfile = 'exp0_results.txt';
@@ -82,24 +82,10 @@ try
         G = dlmread([outpath 'geometry.txt']);
         [nGeomPoints,searchSpace_dim] = size(G);
     else
-        % dimension of search space(beta, taper_x, y_in)
-        searchSpace_dim = 3;
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 1;
-        % create random geometrical parameter matrix G. Each row of the matrix 
-        % contains a set of geometrical parameters: beta, taper_x, y_in
-        G = rand(nGeomPoints,searchSpace_dim);
-        % set bounds for the geometrical parameters
-        beta_min = 0;
-        beta_max = 0.0652; %unit: radians
-        taperx_min = 200; %unit: micrometers
-        taperx_max = 230; % '' ''
-        yin_min = 5; % '' ''
-        yin_max = 20; % '' ''
-        % change limits of the geometrical parameter matrix G
-        G(:,1) = (beta_max - beta_min).*G(:,1)+ beta_min;
-        G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
-        G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
+        nGeomPoints = 20;
+        G = generateGeom(nGeomPoints);
+        [nGeomPoints,searchSpace_dim] = size(G);
         
         % save the explored geometry
         dlmwrite([outpath 'geometry.txt'], G);

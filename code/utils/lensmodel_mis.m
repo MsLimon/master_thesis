@@ -23,11 +23,11 @@ function [P,Iline_data] = lensmodel_mis(beta,taperx,yin,D0,w,M)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
-        infile = '5parameters_model_sweep_intensity_line_655.mph'; 
-        %infile = '5parameters_model_sweep_intensity_line.mph';
+        %infile = '5parameters_model_sweep.mph'; 
+        infile = '5parameters_model_sweep_655.mph';
     else
         modelpath = '../';
-        infile = '5parameters_model_sweep_intensity_line.mph';
+        infile = '5parameters_model_sweep.mph';
         ModelUtil.showProgress(true);
     end
     % load the model
@@ -59,7 +59,7 @@ function [P,Iline_data] = lensmodel_mis(beta,taperx,yin,D0,w,M)
     % extract the power from the accumulated probe table
     P = tabl.data(:,end); % units: W/m
     % export the intensity line data
-    model.result().export('plot1').set('plotgroup', 'pg3');
+    model.result().export('plot1').set('plotgroup', 'pg5');
     model.result().export('plot1').set('plot', 'lngr1');
     model.result().export('plot1').set('filename', intensityfile);
     model.result().export('plot1').run();

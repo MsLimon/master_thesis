@@ -2,7 +2,7 @@
 % University of Freiburg, Germany
 % Last Update: April 24, 2017
 % 
-% Extract and analyze the results of ex1 (random search with misalignment)
+% Extract and analyze the results of exp1 (random search with misalignment)
 
 %color dictionary
 % colors: yellow [1  0.8431 0], green [0.1647 0.3843 0.2745]

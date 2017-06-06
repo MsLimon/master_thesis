@@ -19,10 +19,10 @@ function [P,Iline_data] = comsolblackbox2(beta,taperx,yin)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
-        infile = 'glass_feedthrough_model_intensity_line_655.mph';
+        infile = 'glass_feedthrough_655.mph';
     else
         modelpath = '../';
-        infile = 'glass_feedthrough_model_intensity_line.mph';
+        infile = 'glass_feedthrough.mph';
         ModelUtil.showProgress(true);
     end
     % load the model

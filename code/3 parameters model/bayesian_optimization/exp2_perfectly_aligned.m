@@ -47,11 +47,10 @@ beta = optimizableVariable('beta',[0,0.0652]); %unit: radians
 taperx = optimizableVariable('taperx',[200,230]); %unit: micrometers
 yin = optimizableVariable('yin',[5,20]); %unit: micrometers
 
-
-try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
+import com.comsol.model.*
+import com.comsol.model.util.*
     
+try
     % specify logfile name
     logfile = 'logfile_exp2.txt';
     % start logfile

@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 10, 2017
+% Last Update: June 06, 2017
 % 
 % Random search on geometrical space with misalignment. Parameter space
 % is (beta,taperx,yin,D0,w)
@@ -51,15 +51,14 @@ else % on the local machine (Windows)
 end
 % connect MATLAB and COMSOL server
 mphstart();
+import com.comsol.model.*
+import com.comsol.model.util.*
 try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
-    
     % set the names of the input and output files
     logfile = 'logfile_exp5.txt';
     outstruct_name = 'exp5_results.mat';
-    reuse_geometry = true;
-    reuse_misalignment = true;
+    reuse_geometry = false;
+    reuse_misalignment = false;
     if isunix == 1
         outpath = '';
         inpath = '';
@@ -84,31 +83,10 @@ try
         G = dlmread([outpath 'geometry.txt']);
         [nGeomPoints,searchSpace_dim] = size(G);
     else
-        % dimension of search space(beta, taper_x, y_in)
-        searchSpace_dim = 5;
-        % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 1;
-        % create random geometrical parameter matrix G. Each row of the matrix 
-        % contains a set of geometrical parameters (beta,taper_x,y_in,D0,w)
-        G = rand(nGeomPoints,searchSpace_dim);
-        % set bounds for the geometrical parameters
-        beta_min = 0;
-        beta_max = 0.0652; %unit: radians
-        taperx_min = 200; %unit: micrometers
-        taperx_max = 230; %unit: micrometers
-        yin_min = 5; %unit: micrometers
-        yin_max = 20; %unit: micrometers
-        D0_min = h_max; %unit: micrometers
-        D0_max = 10; %unit: micrometers
-        w_min = 0.1; % unitless
-        w_max = 5; % unitless
-        
-        % change limits of the geometrical parameter matrix G
-        G(:,1) = (beta_max - beta_min).*G(:,1)+ beta_min;
-        G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
-        G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
-        G(:,4) = (D0_max - D0_min).*G(:,4)+ D0_min;
-        G(:,5) = (w_max - w_min).*G(:,5)+ w_min;
+        % number of geometrical parameters
+        nGeomPoints = 20;
+        G = generateGeom(nGeomPoints,'model','lens');
+        [nGeomPoints,searchSpace_dim] = size(G);
         % save the explored geometry
         dlmwrite([outpath 'geometry.txt'], G);
     end
@@ -120,7 +98,7 @@ try
         % dimension of the misalignment space
         misalignment_dim = 3;
         % number of misalignment points
-        nMisPoints = 4;
+        nMisPoints = 120;
         % % generate misalignment samples
         M = generatePoints(nMisPoints);
         % save misalignment matrix
@@ -132,7 +110,7 @@ try
     R = zeros(nMisPoints,misalignment_dim+1);
     R(:,1:end-1) = M;
 
-    for i = 16:nGeomPoints
+    for i = 1:nGeomPoints
         if i ==1
             % preallocate the data struct
             data = struct('geometry',[],'misalignment',M,'results',R,'Iline',[]);

@@ -4,11 +4,11 @@
 
 % Script to test the extraction of the intensity profile at the output
 % facet from a comsol model
-num_param_sweeps = 4;
+nMisPoints = 10;
 Iline_data = load('../intensity_line_multiple.dat');
 [n,m] = size(Iline_data);
 Iline_data = Iline_data(:);
-Iline_data = reshape(Iline_data,[n/num_param_sweeps,num_param_sweeps*m]);
+Iline_data = reshape(Iline_data,[n/nMisPoints,nMisPoints*m]);
 % Create figure
 figure1 = figure;
 
@@ -16,7 +16,14 @@ figure1 = figure;
 f_width = 700;
 f_height = 400;
 figure1.Position = [100, 100, f_width, f_height];
-plot(Iline_data(:,1),Iline_data(:,5),Iline_data(:,2),Iline_data(:,6),Iline_data(:,3),Iline_data(:,7),Iline_data(:,4),Iline_data(:,8))
+hold on
+for i = 1:nMisPoints
+    %legendname = sprintf('x_{mis}=%0.5g, y_{mis}=%0.5g, alpha=%0.5g, s=%0.5g',M(i,1),M(i,2),M(i,3),s(i));
+    %plot(Iline_data(:,i),Iline_data(:,i+nMisPoints),'DisplayName',legendname);
+    plot(Iline_data(:,i),Iline_data(:,i+nMisPoints));
+end
+%legend('show','Location', 'Best');
 xlabel('Arc length / um');
 ylabel('I / W m^-^2');
+hold off
 

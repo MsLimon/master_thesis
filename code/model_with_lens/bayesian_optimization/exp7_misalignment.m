@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 16, 2017
+% Last Update: June 06, 2017
 
 % Bayesian optimization on geometrical space with misalignment. Parameter space
 % is (beta, taper_x, y_in,D0,w)
@@ -63,10 +63,9 @@ M = generatePoints(nMisPoints);
 % save misalignment matrix
 dlmwrite('misalignment_points.txt', M);
 
+import com.comsol.model.*
+import com.comsol.model.util.*
 try
-    import com.comsol.model.*
-    import com.comsol.model.util.*
-    
     % specify logfile name
     logfile = 'logfile_exp7.txt';
     % start logfile

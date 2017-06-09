@@ -6,20 +6,20 @@
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
 
 % set to true to change the figure appearance to print the image
-print_pic = false;
+print_pic = true;
 
 %load the Iline_data
 nMisPoints = 4;
 Iline_data = load('intensity_line_multiple.dat');
 weight_type = 'gaussian';
-norm_type = 'manhattan';
+norm_type = 'euclidean';
 s = symmetry(nMisPoints,Iline_data,'weights',weight_type,'norm',norm_type);
 % figure1 = figure;
 % plot(s,'+');
 mean_s = mean(s)
 median_s = median(s)
 % s = symmetry(nMisPoints,Iline_data);
-mean_type = 'lhalf';
+mean_type = 'mean';
 k = skew(nMisPoints,Iline_data,'mu',mean_type);
 mean_k = mean(abs(k))
 median_k = median(abs(k))
@@ -52,8 +52,9 @@ for i = 1:nMisPoints
 x = Iline_data(:,i);
 f = Iline_data(:,nMisPoints+i);  %unit: W/m^2
 % change units to mW/mm^2
-%f = f * 1e-3; %unit: mW/mm^2
-legendname = sprintf('s1=%0.5g, s2=%0.5g',s(i),k(i));
+f = f * 1e-3; %unit: mW/mm^2
+legendname = sprintf('s2=%0.5g,',k(i));
+% legendname = sprintf('s1=%0.5g, s2=%0.5g',s(i),k(i));
 plot(x,f,'DisplayName',legendname,'LineWidth',linewidth);
 hold on
 end

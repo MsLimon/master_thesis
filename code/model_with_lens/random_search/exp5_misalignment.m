@@ -29,19 +29,11 @@
 
 if isunix == 1 % on the cluster
     % add path to utils
-    addpath('~/utils');
-    % Important: adjust path of the COMSOL43/mli directory if necessary
-    addpath('~/Comsol/comsol52a/multiphysics/mli')
-    % Run script once the server is started or use the command below
+    addpath('./utils');
     % Start the COMSOL server 
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
+    system_command = sprintf('comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
     system(system_command);
-%     [status,out] = system(system_command);
-%     disp('result of system command:');
-%     disp(out);
-%     disp('status');
-%     disp(status);
-    pause(30);
+    pause(15);
 else % on the local machine (Windows)
     % add path to utils
     addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
@@ -84,7 +76,7 @@ try
         [nGeomPoints,searchSpace_dim] = size(G);
     else
         % number of geometrical parameters
-        nGeomPoints = 20;
+        nGeomPoints = 2;
         G = generateGeom(nGeomPoints,'model','lens');
         [nGeomPoints,searchSpace_dim] = size(G);
         % save the explored geometry
@@ -98,7 +90,7 @@ try
         % dimension of the misalignment space
         misalignment_dim = 3;
         % number of misalignment points
-        nMisPoints = 120;
+        nMisPoints = 2;
         % % generate misalignment samples
         M = generatePoints(nMisPoints);
         % save misalignment matrix

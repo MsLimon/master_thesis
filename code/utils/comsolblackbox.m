@@ -23,10 +23,10 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin)
     if isunix == 1
         % set the name of the input model file
         inpath = '';
-        infile = 'glass_feedthrough_model_655_6epw.mph';
+        infile = 'glass_feedthrough_655.mph';
     else
         inpath = '../';
-        infile = 'glass_feedthrough_model.mph';
+        infile = 'glass_feedthrough.mph';
         ModelUtil.showProgress(true);
     end
     % load the model

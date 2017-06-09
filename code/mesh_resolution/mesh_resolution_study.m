@@ -7,11 +7,9 @@
 if isunix == 1 % on the cluster
     % add path to utils
     addpath('~/utils');
-    % Important: adjust path of the COMSOL43/mli directory if necessary
-    addpath('~/Comsol/comsol52a/multiphysics/mli');
     % Run script once the server is started or use the command below
     % Start the COMSOL server 
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',MY_TMPDIR);
+    system_command = sprintf('comsol mphserver </dev/null >mphserver.out 2>mphserver.err -tmpdir %s -autosave off &',MY_TMPDIR);
     system(system_command);
     pause(15);
 else % on the local machine (Windows)
@@ -37,7 +35,7 @@ outstruct_name = 'meshResolutionData.mat';
 
 % set the range of values to be evaluated
 elements_min = 1;
-elements_max = 5;
+elements_max = 10;
 % prealocate results matrix R.
 elements = (elements_min:elements_max);
 R = zeros(length(elements),2);
@@ -49,13 +47,13 @@ nGeomPoints = 1;
 % contains a set of geometrical parameters (beta, taper_x, y_in)
 G = generateGeom(nGeomPoints);
 % preallocate data structure
-results = struct('numElements',0,'power',0,'Iline',[]);
+results = struct('geometry',G,'numElements',0,'power',0,'Iline',[]);
 % Evaluate the model for the specified resolutions 
 i = 1; % initialize loop counter
 for iElements = elements_min:elements_max
     [P,Iline_data] = blackbox_mesh_study(G(1),G(2),G(3),iElements);
     R(i,end) = P;
-    results(i) = struct('numElements',iElements,'power',P,'Iline',Iline_data);
+    results(i) = struct('geometry',G,'numElements',iElements,'power',P,'Iline',Iline_data);
     if i==1
         save([outpath outstruct_name], 'results');
     else
@@ -65,7 +63,7 @@ for iElements = elements_min:elements_max
 end
 
 % save the results to an ASCII-delimited text file
-dlmwrite('exp1_results.txt',R);
+dlmwrite('mesh_study_results.txt',R);
 % -------plot results------
 % get the power corresponding to the solution with highest resolution
 P_accurate = R(end,end);

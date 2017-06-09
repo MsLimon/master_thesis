@@ -20,16 +20,16 @@ function [objective] = lensmodel_mis_bayes(beta,taperx,yin,D0,w,M)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
-        infile = '5parameters_model_sweep_intensity_line_655.mph'; 
+        infile = '5parameters_model_sweep_655.mph'; 
     else
         modelpath = '../';
-        infile = '5parameters_model_sweep_intensity_line.mph';
+        infile = '5parameters_model_sweep.mph';
         ModelUtil.showProgress(true);
     end
     % load the model
     model = mphload([modelpath infile]);
     % set the name for the output intensity line file
-    intensityfile = 'intensity_line_multiple.dat';
+    intensityfile = 'intensity_line.dat';
     
     % pass geometrical parameters to the COMSOL model
     model.param.set('beta', [num2str(beta),'[rad]'], 'Angle of later facet');
@@ -58,10 +58,10 @@ function [objective] = lensmodel_mis_bayes(beta,taperx,yin,D0,w,M)
     P_mean = mean(P);
     objective = -P_mean;
     % export the intensity line data
-    model.result().export('plot1').set('plotgroup', 'pg3');
-    model.result().export('plot1').set('plot', 'lngr1');
-    model.result().export('plot1').set('filename', intensityfile);
-    model.result().export('plot1').run();
+%     model.result().export('plot1').set('plotgroup', 'pg3');
+%     model.result().export('plot1').set('plot', 'lngr1');
+%     model.result().export('plot1').set('filename', intensityfile);
+%     model.result().export('plot1').run();
 %     % load the data extracted from the model
 %     Iline_data = load([modelpath intensityfile]);
     % Save the model

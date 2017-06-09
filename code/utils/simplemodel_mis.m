@@ -20,10 +20,10 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
-        infile = 'glass_feedthrough_model_sweep_intensity_line_655.mph'; 
+        infile = 'glass_feedthrough_sweep_655.mph'; 
     else
         modelpath = '../';
-        infile = 'glass_feedthrough_model_sweep_intensity_line.mph';
+        infile = 'glass_feedthrough_sweep.mph';
         ModelUtil.showProgress(true);
     end
     % load the model

@@ -60,7 +60,7 @@ try
     % start logfile
     ModelUtil.showProgress(logfile);
     % create a handle for the objective function
-    fun = @(x)lensmodelair(x.beta,x.taperx,x.yin,x.D0,x.w);
+    fun = @(x)lensmodel_bayes(x.beta,x.taperx,x.yin,x.D0,x.w);
     % call bayesian optimization and store the results
     results = bayesopt(fun,[beta,taperx,yin,D0,w],'Verbose',1,...
         'IsObjectiveDeterministic',true,...

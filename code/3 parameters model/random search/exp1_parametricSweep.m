@@ -29,13 +29,10 @@
 
 if isunix == 1 % on the cluster
     % add path to utils
-    addpath('~/utils');
-    % Important: adjust path of the COMSOL43/mli directory if necessary
-    addpath('~/Comsol/comsol52a/multiphysics/mli');
-    % Run script once the server is started or use the command below
+    addpath('./utils');
     % Start the COMSOL server 
-    %system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -f %s -tmpdir %s -autosave off -mpidebug 10 &',PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
+    %system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -mpiarg -rmk -mpiarg pbs -mpifabrics dapl -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
+    system_command = sprintf('comsol mphserver </dev/null >mphserver.out 2>mphserver.err -nn %d -nnhost 1 -np %d -f %s -tmpdir %s -autosave off &',NN,NP,PBS_HOSTFILE,MY_TMPDIR);
     system(system_command);
     pause(15);
 else % on the local machine (Windows)
@@ -53,8 +50,8 @@ try
     % set the paths and filenames
     logfile = 'logfile_exp1.txt';
     outstruct_name = 'exp1_results.mat';
-    reuse_geometry = false;
-    reuse_misalignment = false;
+    reuse_geometry = true;
+    reuse_misalignment = true;
     if isunix == 1
         outpath = '';
     else
@@ -73,8 +70,8 @@ try
         [nGeomPoints,searchSpace_dim] = size(G);
     else
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 20;
-        G = generateGeom(nGeomPoints);
+        nGeomPoints = 2;
+        G = generateGeom(nGeomPoints,'model','simple');
         [nGeomPoints,searchSpace_dim] = size(G);
         % save the generated geometry
         dlmwrite([outpath 'geometry.txt'], G);
@@ -87,7 +84,7 @@ try
         % dimension of the misalignment space
         misalignment_dim = 3;
         % number of misalignment points
-        nMisPoints = 120;
+        nMisPoints = 2;
         % % generate misalignment samples
         M = generatePoints(nMisPoints);
         % save misalignment matrix

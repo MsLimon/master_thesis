@@ -49,9 +49,12 @@ end
 G = rand(nGeomPoints,searchSpace_dim);
 % set bounds for the geometrical parameters
 beta_min = 0;
-beta_max = 0.0935; %unit: radians
-taperx_min = 140; %unit: micrometers
-taperx_max = 160; % '' ''
+% beta_max = 0.0935; %unit: radians
+beta_max = 0.0651; %unit: radians
+% taperx_min = 140; %unit: micrometers
+% taperx_max = 160; % '' ''
+taperx_min = 200; %unit: micrometers
+taperx_max = 230; % '' ''
 yin_min = 5; % '' ''
 yin_max = 20; % '' ''
 

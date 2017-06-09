@@ -19,10 +19,10 @@ function [objective] = lensmodel_bayes(beta,taperx,yin,D0,w)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
-        infile = '5parameters_model_intensity_line_655.mph'; % TODO - change file
+        infile = '5parameters_model_655.mph'; % TODO - change file
     else
         modelpath = '../';
-        infile = '5parameters_model_intensity_line.mph';
+        infile = '5parameters_model.mph';
         ModelUtil.showProgress(true);
     end
     % load the model

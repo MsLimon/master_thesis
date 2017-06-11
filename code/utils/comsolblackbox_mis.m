@@ -82,7 +82,9 @@ function [P,Iline_data] = comsolblackbox_mis(beta,taperx,yin,M)
     end
     % remove the model
     ModelUtil.remove('model');
-    ModelUtil.clear;    
-       
+    ModelUtil.clear;
+    % delete the I_line files
+    removefiles = [outpath '*.dat'];
+    delete(removefiles);
 end 
     

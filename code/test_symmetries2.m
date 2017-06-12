@@ -6,27 +6,29 @@
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
 
 % set to true to change the figure appearance to print the image
-print_pic = true;
+print_pic = false;
 
 %load the Iline_data
-nMisPoints = 4;
-Iline_data = load('intensity_line_multiple.dat');
+Iline_data = data(10).Iline;
+[n,m] = size(Iline_data);
+num_points = n;
+nMisPoints = m/2;
+
 weight_type = 'gaussian';
 norm_type = 'euclidean';
-s = symmetry(nMisPoints,Iline_data,'weights',weight_type,'norm',norm_type);
+s = symmetry(Iline_data,'weights',weight_type,'norm',norm_type);
 % figure1 = figure;
 % plot(s,'+');
 mean_s = mean(s)
 median_s = median(s)
 % s = symmetry(nMisPoints,Iline_data);
 mean_type = 'mean';
-k = skew(nMisPoints,Iline_data,'mu',mean_type);
+k = skew(Iline_data,'mu',mean_type);
 mean_k = mean(abs(k))
 median_k = median(abs(k))
 % figure2 = figure;
 % plot(k,'+');
 % reshape Iline_data
-Iline_data = reshapeI(Iline_data,nMisPoints);
 % Create figure
 figure3 = figure;
 
@@ -49,8 +51,8 @@ end
 figure3.Position = [100, 100, f_width, f_height];
 
 for i = 1:nMisPoints
-x = Iline_data(:,i);
-f = Iline_data(:,nMisPoints+i);  %unit: W/m^2
+x = Iline_data(:,(2*i)-1);
+f = Iline_data(:,2*i);  %unit: W/m^2
 % change units to mW/mm^2
 f = f * 1e-3; %unit: mW/mm^2
 legendname = sprintf('s2=%0.5g,',k(i));
@@ -59,10 +61,10 @@ plot(x,f,'DisplayName',legendname,'LineWidth',linewidth);
 hold on
 end
 hold off
-LEG=legend('show');
+% LEG=legend('show');
 xlabel('Arc length / um');
 ylabel('I / mW mm^-^2');
-set(LEG,'FontSize',font_size);
+% set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size)
 
 if print_pic == true

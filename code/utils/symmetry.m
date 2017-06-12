@@ -1,4 +1,4 @@
-function s = symmetry(nMisPoints,Iline_data,varargin)
+function s = symmetry(Iline_data,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 30, 2017
@@ -8,7 +8,6 @@ function s = symmetry(nMisPoints,Iline_data,varargin)
 % the vector m
 %
 %Input:
-% - n scalar. number of functions contained in I_data
 % - I_data is a matrix containing the functions to be evaluates. The first
 % column contains x values and the second column corresponds to the
 % correspoding intensity values. The number of rows can vary
@@ -31,9 +30,8 @@ function s = symmetry(nMisPoints,Iline_data,varargin)
 %s = symmetry(nMisPoints,Iline_data,'weights','gaussian','norm','euclidean');
 
 [n,m] = size(Iline_data);
-Iline_data = Iline_data(:);
-Iline_data = reshape(Iline_data,[n/nMisPoints,nMisPoints*m]);
-num_points = size(Iline_data,1);
+num_points = n;
+nMisPoints = m/2;
 
 p = inputParser;
 
@@ -72,14 +70,14 @@ end
 s = zeros(1,nMisPoints);
 
 for i = 1:nMisPoints
-% x = Iline_data(:,i);
-f = Iline_data(:,nMisPoints+i);
-f_plus = 0.5 * (f + flip(f)); 
-f_minus = 0.5 * (f - flip(f));
-norm_f_plus = sum((abs(f_plus).^p_norm).*w)^(1/p_norm);
-norm_f_minus = sum((abs(f_minus).^p_norm).*w)^(1/p_norm);
-%s(i) = norm(f_minus) / (norm(f_plus) + norm(f_minus));
-s(i) = norm_f_minus / (norm_f_plus + norm_f_minus);
+    x = Iline_data(:,(2*i)-1);
+    f = Iline_data(:,2*i);
+    f_plus = 0.5 * (f + flip(f)); 
+    f_minus = 0.5 * (f - flip(f));
+    norm_f_plus = sum((abs(f_plus).^p_norm).*w)^(1/p_norm);
+    norm_f_minus = sum((abs(f_minus).^p_norm).*w)^(1/p_norm);
+    %s(i) = norm(f_minus) / (norm(f_plus) + norm(f_minus));
+    s(i) = norm_f_minus / (norm_f_plus + norm_f_minus);
 end
 
 end

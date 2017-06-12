@@ -1,4 +1,4 @@
-function s = skew(nMisPoints,Iline_data,varargin)
+function s = skew(Iline_data,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 29, 2017
@@ -8,7 +8,6 @@ function s = skew(nMisPoints,Iline_data,varargin)
 % the vector m
 %
 %Input:
-% - n scalar. number of functions contained in I_data
 % - I_data is a matrix containing the functions to be evaluates. The first
 % column contains x values and the second column corresponds to the
 % correspoding intensity values. The number of rows can vary
@@ -19,10 +18,9 @@ function s = skew(nMisPoints,Iline_data,varargin)
 % m is calculated by decomposing each function into an symmetric and 
 % anti-symmetric part and calculating the relative norm of the symmetric
 % part.
-
 [n,m] = size(Iline_data);
-Iline_data = Iline_data(:);
-Iline_data = reshape(Iline_data,[n/nMisPoints,nMisPoints*m]);
+num_points = n;
+nMisPoints = m/2;
 
 p = inputParser;
 
@@ -38,8 +36,8 @@ mean_type = p.Results.mu;
 s = zeros(1,nMisPoints);
 
 for i = 1:nMisPoints
-x = Iline_data(:,i);
-f = Iline_data(:,nMisPoints+i);
+x = Iline_data(:,(2*i)-1);
+f = Iline_data(:,2*i);
 f_total = sum(f);
 p = f / f_total;
 switch mean_type

@@ -52,7 +52,7 @@ for i =1:length(data)
     median_P = median(P);
     std_P =  std(P);
     %Iline_data = data(i).Iline;
-    %s = symmetry(nMisPoints,Iline_data,'weights','gaussian','norm','euclidean');
+    %s = symmetry(Iline_data,'weights','gaussian','norm','euclidean');
     value = repmat([current_beta current_taperx current_yin current_D0 current_w],nMisPoints,1);
     if i==1
         plot_vector = [P value];

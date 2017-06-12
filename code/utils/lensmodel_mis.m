@@ -94,5 +94,7 @@ function [P,Iline_data] = lensmodel_mis(beta,taperx,yin,D0,w,M)
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    
-       
+    % delete the I_line files
+    removefiles = [outpath '*.dat'];
+    delete(removefiles);
 end 

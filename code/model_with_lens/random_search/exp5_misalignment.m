@@ -50,7 +50,7 @@ try
     logfile = 'logfile_exp5.txt';
     outstruct_name = 'exp5_results.mat';
     reuse_geometry = false;
-    reuse_misalignment = false;
+    reuse_misalignment = true;
     if isunix == 1
         outpath = '';
         inpath = '';
@@ -76,7 +76,7 @@ try
         [nGeomPoints,searchSpace_dim] = size(G);
     else
         % number of geometrical parameters
-        nGeomPoints = 2;
+        nGeomPoints = 20;
         G = generateGeom(nGeomPoints,'model','lens');
         [nGeomPoints,searchSpace_dim] = size(G);
         % save the explored geometry
@@ -90,7 +90,7 @@ try
         % dimension of the misalignment space
         misalignment_dim = 3;
         % number of misalignment points
-        nMisPoints = 2;
+        nMisPoints = 120;
         % % generate misalignment samples
         M = generatePoints(nMisPoints);
         % save misalignment matrix

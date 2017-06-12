@@ -75,12 +75,12 @@ R(:,end) = P;
 % evaluate the symmetry
 weight_type = 'gaussian';
 norm_type = 'euclidean';
-s = symmetry(nMisPoints,Iline_data,'weights',weight_type,'norm',norm_type);
+s = symmetry(Iline_data,'weights',weight_type,'norm',norm_type);
 R(:,end-1) = s;
 mean_s(i) = mean(s);
 median_s(i) = median(s);
 mean_type = 'lhalf';
-k = skew(nMisPoints,Iline_data,'mu',mean_type);
+k = skew(Iline_data,'mu',mean_type);
 R(:,end-2) = k;
 mean_k(i) = mean(abs(k));
 median_k(i) = median(abs(k));
@@ -114,11 +114,11 @@ end
 figure3.Position = [100, 100, f_width, f_height];
 
 % reshape Iline_data
-Iline_data = reshapeI(Iline_data,nMisPoints);
+%Iline_data = reshapeI(Iline_data,nMisPoints);
 
 for i = 1:nMisPoints
-x = Iline_data(:,i);
-f = Iline_data(:,nMisPoints+i);  %unit: W/m^2
+x = Iline_data(:,(2*i)-1);
+f = Iline_data(:,2*i);  %unit: W/m^2
 % change units to mW/mm^2
 f = f * 1e-3; %unit: mW/mm^2
 legendname = sprintf('s1=%0.5g, s2=%0.5g',s(i),k(i));

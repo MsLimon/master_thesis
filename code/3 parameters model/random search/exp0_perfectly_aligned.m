@@ -75,7 +75,7 @@ try
     rng('shuffle');
     % save the current random generator settings in s:
     %s = rng;
-    reuse_geometry = false;
+    reuse_geometry = true;
    
     if reuse_geometry == true
         % load geometry

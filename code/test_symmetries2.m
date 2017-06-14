@@ -9,7 +9,9 @@ addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
 print_pic = false;
 
 %load the Iline_data
-Iline_data = data(10).Iline;
+data_i= 1;
+exp_num = 9;
+Iline_data = data(data_i).Iline;
 [n,m] = size(Iline_data);
 num_points = n;
 nMisPoints = m/2;
@@ -19,13 +21,23 @@ norm_type = 'euclidean';
 s = symmetry(Iline_data,'weights',weight_type,'norm',norm_type);
 % figure1 = figure;
 % plot(s,'+');
-mean_s = mean(s)
-median_s = median(s)
+mean_s = mean(s);
+median_s = median(s);
 % s = symmetry(nMisPoints,Iline_data);
 mean_type = 'mean';
 k = skew(Iline_data,'mu',mean_type);
-mean_k = mean(abs(k))
-median_k = median(abs(k))
+mean_k = mean(abs(k));
+median_k = median(abs(k));
+
+%calculate the integral from the Iline_data
+%weight the function first with a gaussian window penalize non-centered
+%functions
+x = Iline_data(:,3);
+f = Iline_data(:,4);
+num_points = length(f);
+w = gausswin(num_points,2.5); % TODO - plot the gaussian window!
+f = f.*w;
+integral = trapz(x,f)*1e-6;
 % figure2 = figure;
 % plot(k,'+');
 % reshape Iline_data
@@ -64,13 +76,16 @@ hold off
 % LEG=legend('show');
 xlabel('Arc length / um');
 ylabel('I / mW mm^-^2');
+xlim([0 50]);
+ylim([0 250]);
 % set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size)
 
 if print_pic == true
     % save the figure to a png file
     % the file name
-    picname = ['symmetry','_w_',weight_type,'_n_',norm_type,'_m_',mean_type];
+%     picname = ['symmetry','_w_',weight_type,'_n_',norm_type,'_m_',mean_type];
+    picname = ['exp',num2str(exp_num),'_iteration_',num2str(data_i)];
     print(figure3,picname,'-r300','-dpng')
 end
 

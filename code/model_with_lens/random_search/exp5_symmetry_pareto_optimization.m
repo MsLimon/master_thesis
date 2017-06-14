@@ -11,11 +11,11 @@ addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-resultsPath_mis = [currentPath '\results\exp1\'];
-resultsfile = 'exp1_results.mat';
+resultsPath_mis = [currentPath '\results\exp5\'];
+resultsfile = 'exp5_results.mat';
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 outpath = [currentPath '\results\analysis\'];
-outstruct_name = 'exp1_analysis.mat';
+outstruct_name = 'exp5_analysis.mat';
 print_pic = true;
 
 % load results data
@@ -35,7 +35,9 @@ for i=1:nGeomPoints
     current_geometry = data(i).geometry;
     current_beta = current_geometry(1);  %unit: radians
     current_taperx = current_geometry(2); %unit: micrometers
-    current_yin = current_geometry(3); %unit: meters
+    current_yin = current_geometry(3); %unit: micrometers
+    current_D0 = current_geometry(4); %unit: micrometers
+    current_w = current_geometry(5); %unitless
     % extract the power results and calculate the mean and the average
     M = data(i).misalignment;
     % get dimesions of misalignment data
@@ -53,7 +55,7 @@ for i=1:nGeomPoints
     median_s = median(s);
     std_s = std(s);
  
-     value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
+     value = repmat([current_beta current_taperx current_yin current_D0 current_w],nMisPoints,1);
     if i==1
         symmetry_plot_vector = [s value];
     else
@@ -83,8 +85,13 @@ fig.Position = [100, 100, f_width, f_height];
 x = statistics_vector_symmetry(:,2); % symmetry std
 f = statistics_vector_symmetry(:,1); % symmetry mean
 plot(x,f,'s','LineWidth',linewidth,'DisplayName','regular solutions');
+
+xlabel('std');
+ylabel('mean');
+
+
 hold on
-std_lim = 0.07:0.0005:0.1;
+std_lim = 0.08:0.005:0.1;
 % TODO - automatically find the contraint boundaries (look for min of each
 % function(mean and std) and get the corresponding std)
 num_std_lim = length(std_lim);
@@ -108,19 +115,14 @@ for j = 1:num_pareto
     plot(x_pareto(j),f_pareto(j),'*','LineWidth',linewidth,'DisplayName',legendname)
 end
 LEG=legend('show');
+set(LEG,'FontSize',font_size);
+set(gca,'fontsize',font_size);
 x_pareto = x(pareto_id);
 f_pareto = f(pareto_id);
 [f_pareto,I] = sort(f_pareto);
 x_pareto = x_pareto(I);
 % plot pareto front
 plot(x_pareto,f_pareto,'-','LineWidth',linewidth,'DisplayName','pareto front');
-
-
-
-xlabel('std of s1');
-ylabel('mean s1');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
 
 if print_pic == true
 % Save plot to vector image .eps

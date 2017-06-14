@@ -1,15 +1,18 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 12, 2017
+% Last Update: June 13, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
+
+% add path to utils
+addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
 
 %color dictionary
 % colors: yellow [1  0.8431 0], green [0.1647 0.3843 0.2745]
 % orange [0.8706 0.4902 0], purple [0.4941 0.1843 0.5569]
 color_names = {'yellow','purple','orange','green'};
 color_code = {1,2,3,4};
-rgb_values = {[1  0.8431 0],[0.6500 0.5600 0.7600],[0.8706 0.4902 0],[0.1647 0.3843 0.2745]};
+rgb_values = {[1  0.8431 0],[0.6600 0.3100 0.6600],[0.8706 0.4902 0],[0.1647 0.3843 0.2745]};
 setcolor = containers.Map(color_names,rgb_values);
 selectcolor = containers.Map(color_code,color_names);
 % to get more colors use the Matlab function: c = uisetcolor([0.6 0.8 1])
@@ -18,11 +21,12 @@ selectcolor = containers.Map(color_code,color_names);
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-resultsPath_mis = [currentPath '\results\exp1\'];
-resultsfile = 'exp1_results.mat';
+experiment = 'exp1';
+resultsPath_mis = [currentPath '\results\' experiment '\'];
+resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
-outpath = [currentPath '\results\analysis\'];
-outstruct_name = 'exp1_analysis.mat';
+outpath = [currentPath '\results\analysis\' experiment '\'];
+outstruct_name = [experiment '_analysis.mat'];
 print_pic_p = false;
 print_pic_s = false;
 print_pic_pareto = false;
@@ -92,7 +96,7 @@ for i=1:nGeomPoints
         best_power_id = i;
     end 
     std_lim = 0.1;
-    objective = mean_k;
+    objective = mean_s;
     if objective < best_symmetry && std_s < std_lim
         best_symmetry = objective;
         best_candidate_s = current_geometry;
@@ -206,12 +210,12 @@ end
 % plot the results in power
 fig3 = figure;
 
-if print_pic_p == true
+if print_pic_pareto == true
     % select figure size
     f_width = 1700;
     f_height= 1000;
     %select line width of the plot lines
-    linewidth = 1.15;
+    linewidth = 1.5;
     font_size = 16;
 else
     % select figure size
@@ -229,22 +233,30 @@ f = statistics_vector_symmetry(:,1); % symmetry mean
 plot(x,f,'s','LineWidth',linewidth);
 xlabel('power mean');
 ylabel('symmetry mean');
+set(gca,'fontsize',font_size);
 
 if print_pic_p == true
 % Save plot to vector image .eps
 fig1.PaperPositionMode = 'auto';
-filename_Pplot = 'randomSearch_Misalignment_power';
+filename_Pplot = 'randomSearch_misalignment_power';
 print(fig1,'-dpng','-r300', [outpath filename_Pplot])
 print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
 if print_pic_s == true
 % Save plot to vector image .eps
 fig2.PaperPositionMode = 'auto';
-filename_Pplot2 = ['randomSearch_Misalignment_symmetry_mean_stdLim',num2str(std_lim)];
+filename_Pplot2 = 'randomSearch_misalignment_symmetry';
 savefile = [outpath filename_Pplot2];
 print(fig2,savefile,'-dpng','-r300')
 print(fig2,[outpath filename_Pplot2],'-depsc','-tiff','-r300')
 %close(hFig1);
+end
+if print_pic_pareto == true
+% Save plot to vector image .eps
+fig3.PaperPositionMode = 'auto';
+filename_Pplot = [experiment '_pareto_front'];
+print(fig3,'-dpng','-r300', [outpath filename_Pplot])
+print(fig3,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
 % %save the results of the experiment in a struct
 % save([outpath outstruct_name], 'analysis');

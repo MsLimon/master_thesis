@@ -51,7 +51,7 @@ try
     logfile = 'logfile_exp1.txt';
     outstruct_name = 'exp1_results.mat';
     reuse_geometry = false;
-    reuse_misalignment = false;
+    reuse_misalignment = true;
     if isunix == 1
         outpath = '';
     else

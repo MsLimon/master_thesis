@@ -3,13 +3,17 @@
 % Last Update: June 01, 2017 
 
 % add path to utils
+if ispc == true
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
+elseif ismac == true
+addpath('/Users/lime/master_thesis/code/utils');
+end
 
 % set to true to change the figure appearance to print the image
 print_pic = false;
 
 %load the Iline_data
-data_i= 1;
+data_i= 17;
 exp_num = 9;
 Iline_data = data(data_i).Iline;
 [n,m] = size(Iline_data);
@@ -29,19 +33,9 @@ k = skew(Iline_data,'mu',mean_type);
 mean_k = mean(abs(k));
 median_k = median(abs(k));
 
-%calculate the integral from the Iline_data
-%weight the function first with a gaussian window penalize non-centered
-%functions
-x = Iline_data(:,3);
-f = Iline_data(:,4);
-num_points = length(f);
-w = gausswin(num_points,2.5); % TODO - plot the gaussian window!
-f = f.*w;
-integral = trapz(x,f)*1e-6;
-% figure2 = figure;
-% plot(k,'+');
-% reshape Iline_data
-% Create figure
+%calculate the weighted integral from the Iline_data
+c = centered(Iline_data);
+
 figure3 = figure;
 
 if print_pic == true
@@ -76,8 +70,8 @@ hold off
 % LEG=legend('show');
 xlabel('Arc length / um');
 ylabel('I / mW mm^-^2');
-xlim([0 50]);
-ylim([0 250]);
+%xlim([0 50]);
+%ylim([0 250]);
 % set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size)
 

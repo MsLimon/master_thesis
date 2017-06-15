@@ -28,20 +28,10 @@
 % - 'Iline'= Iline_data : matrix containing the intensity profile at the
 % output facet
 
-
-clear all 
-clc
-
 if isunix == 1
     % add path to utils
     addpath('~/utils');
-    % Important: adjust path of the COMSOL43/mli directory if necessary
-    addpath('~/Comsol/comsol52a/multiphysics/mli')
-    % Run script once the server is started or use the command below
-    % Start the COMSOL server (for Windows only. This command should be changed
-    % when running the script in a different OS)
-    % system('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver &');
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',MY_TMPDIR);
+    system_command = sprintf('comsol mphserver </dev/null >mphserver.out 2>mphserver.err -tmpdir %s -autosave off &',MY_TMPDIR);
     system(system_command);
     pause(15);
 else
@@ -105,18 +95,22 @@ try
     
     for i = 1:nGeomPoints
         current_geometry = G(i,:);
-      [P,Iline_data] = comsolblackbox2(G(i,1),G(i,2),G(i,3)); %(beta,taperx,yin,D0,w)
+        [P,Iline_data] = comsolblackbox2(G(i,1),G(i,2),G(i,3)); %(beta,taperx,yin)
         R(i,end) = P;
         if P > best_power
             best_power = P;
             best_candidate = current_geometry;
         end 
         data(i) = struct('geometry',current_geometry,'results',P,'Iline',Iline_data);
+        if i==1
+            save([outpath outstruct_name], 'data');
+        else
+            save([outpath outstruct_name], 'data','-append');
+        end
     end
     % Save the results
     dlmwrite([outpath resultsfile],R);
     dlmwrite([outpath bestcandidatefile],best_candidate);
-    save([outpath outstruct_name], 'data');
     % to append more points use:
     % dlmwrite('myFile.txt',N,'-append',...
     % 'delimiter',' ','roffset',1);

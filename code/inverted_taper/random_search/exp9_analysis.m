@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 13, 2017
+% Last Update: June 15, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
 
@@ -27,8 +27,8 @@ f = filesep;
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-experiment = 'exp1';
-resultsPath_mis = [currentPath f 'results' f experiment f];
+experiment = 'exp9';
+resultsPath_mis = [currentPath  f 'results' f experiment f];
 resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 outpath = [currentPath f 'results' f 'analysis' f experiment f];
@@ -79,34 +79,25 @@ for i=1:nGeomPoints
     mean_s = mean(s);
     median_s = median(s);
     std_s = std(s);
-    
     k = skew(Iline_data,'mu','mean');
     mean_k = mean(abs(k));
     median_k = median(abs(k));
     std_k = std(k);
-    
-    c = centered(Iline_data);
-    c = c';
-    mean_c = mean(c);
-    median_c = median(c);
-    std_c = std(c);
-
  
      value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
     if i==1
-        power_plot_vector = [c value];
+        power_plot_vector = [P value];
         symmetry_plot_vector = [s value];
     else
-        power_plot_vector = [power_plot_vector; c value];
+        power_plot_vector = [power_plot_vector; P value];
         symmetry_plot_vector = [symmetry_plot_vector; s value];
     end
-    power_stats = [mean_c std_c median_c];
+    power_stats = [mean_P std_P median_P];
     statistics_vector_power(i,:) = power_stats;
     statistics_vector_symmetry(i,:) = [mean_s std_s median_s];
     
-    power = mean_c;
-    if mean_c > best_power
-        best_power = mean_c;
+    if mean_P > best_power
+        best_power = mean_P;
         best_candidate_P = current_geometry;
         best_power_id = i;
     end 
@@ -222,33 +213,37 @@ set(gca,'fontsize',font_size);
 hold off;
 end
 
-% plot the results in power
-fig3 = figure;
-
-if print_pic_pareto == true
-    % select figure size
-    f_width = 1700;
-    f_height= 1000;
-    %select line width of the plot lines
-    linewidth = 1.5;
-    font_size = 16;
-else
-    % select figure size
-    f_width = 700;
-    f_height = 400;
-    %select line width of the plot lines
-    linewidth = 1;
-    font_size = 10;
-end
-
-fig3.Position = [0, 0, f_width, f_height];
+% % plot the results in power
+% fig3 = figure;
+% 
+% if print_pic_pareto == true
+%     % select figure size
+%     f_width = 1700;
+%     f_height= 1000;
+%     %select line width of the plot lines
+%     linewidth = 1.5;
+%     font_size = 16;
+% else
+%     % select figure size
+%     f_width = 700;
+%     f_height = 400;
+%     %select line width of the plot lines
+%     linewidth = 1;
+%     font_size = 10;
+% end
+% 
+% fig3.Position = [0, 0, f_width, f_height];
 
 x = -statistics_vector_power(:,1); % power mean
 f = statistics_vector_symmetry(:,1); % symmetry mean
-plot(x,f,'s','LineWidth',linewidth);
+
+std_lim = -2:-0.0005:-2.0155;
+% TODO - automatically find the contraint boundaries (look for min of each
+% function(mean and std) and get the corresponding std)
+[pareto_front,fig3] = pareto_plot(x,f,std_lim);
+%plot(x,f,'s')
 xlabel('power mean');
 ylabel('symmetry mean');
-set(gca,'fontsize',font_size);
 
 if print_pic_p == true
 % Save plot to vector image .eps

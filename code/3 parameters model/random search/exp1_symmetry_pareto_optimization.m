@@ -7,16 +7,23 @@
 % Analize random search with misalignment results
 
 % add path to utils
+if ispc == true
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
+elseif ismac == true
+addpath('/Users/lime/master_thesis/code/utils');
+end
+
+% adapt file separator to the operating system
+f = filesep;
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-resultsPath_mis = [currentPath '\results\exp1\'];
+resultsPath_mis = [currentPath f 'results' f 'exp1' f'];
 resultsfile = 'exp1_results.mat';
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
-outpath = [currentPath '\results\analysis\'];
+outpath = [currentPath f 'results' f 'analysis' f];
 outstruct_name = 'exp1_analysis.mat';
-print_pic = true;
+print_pic = false;
 
 % load results data
 load([resultsPath_mis resultsfile]);
@@ -62,65 +69,15 @@ for i=1:nGeomPoints
     statistics_vector_symmetry(i,:) = [mean_s std_s median_s];
 end
 
-fig = figure;
-if print_pic == true
-    % select figure size
-    f_width = 1400;
-    f_height = 700;
-    %select line width of the plot lines
-    linewidth = 1.5;
-    font_size = 14;
-else
-    % select figure size
-    f_width = 700;
-    f_height = 400;
-    %select line width of the plot lines
-    linewidth = 1;
-    font_size = 10;
-end
-fig.Position = [100, 100, f_width, f_height];
-
 x = statistics_vector_symmetry(:,2); % symmetry std
 f = statistics_vector_symmetry(:,1); % symmetry mean
-plot(x,f,'s','LineWidth',linewidth,'DisplayName','regular solutions');
-hold on
+
 std_lim = 0.07:0.0005:0.1;
 % TODO - automatically find the contraint boundaries (look for min of each
 % function(mean and std) and get the corresponding std)
-num_std_lim = length(std_lim);
-pareto_front = zeros(num_std_lim,3);
-for i=1:num_std_lim
-    lim = std_lim(i);
-    valid_id = find(x<lim);
-    valid_f = f(valid_id);
-    [f_min,I_min]=min(valid_f);
-    min_id = valid_id(I_min);
-    x_min = x (min_id);
-    pareto_front(i,:) = [min_id x_min f_min];
-end
-pareto_front = unique(pareto_front,'rows');
-pareto_id = (pareto_front(:,1))';
-x_pareto = (pareto_front(:,2))';
-f_pareto = (pareto_front(:,3))';
-num_pareto = length(pareto_id);
-for j = 1:num_pareto
-    legendname = sprintf('id = %d',pareto_id(j));
-    plot(x_pareto(j),f_pareto(j),'*','LineWidth',linewidth,'DisplayName',legendname)
-end
-LEG=legend('show');
-x_pareto = x(pareto_id);
-f_pareto = f(pareto_id);
-[f_pareto,I] = sort(f_pareto);
-x_pareto = x_pareto(I);
-% plot pareto front
-plot(x_pareto,f_pareto,'-','LineWidth',linewidth,'DisplayName','pareto front');
-
-
-
+[pareto_front,fig] = pareto_plot(x,f,std_lim);
 xlabel('std of s1');
 ylabel('mean s1');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
 
 if print_pic == true
 % Save plot to vector image .eps

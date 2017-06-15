@@ -27,7 +27,7 @@ function s = symmetry(Iline_data,varargin)
 % part.
 %--------------------------------------------------------------------------
 %Example: 
-%s = symmetry(nMisPoints,Iline_data,'weights','gaussian','norm','euclidean');
+%s = symmetry(Iline_data,'weights','gaussian','norm','euclidean');
 
 [n,m] = size(Iline_data);
 num_points = n;

@@ -10,6 +10,7 @@ addpath('/Users/lime/master_thesis/code/utils');
 end
 
 % set to true to change the figure appearance to print the image
+plot_all = false;
 print_pic = false;
 
 %load the Iline_data
@@ -34,8 +35,30 @@ mean_k = mean(abs(k));
 median_k = median(abs(k));
 
 %calculate the weighted integral from the Iline_data
-c = centered(Iline_data);
+c = centered(Iline_data,'alpha',2.5);
 
+% calculate similarity
+error = rmse(Iline_data);
+similarity = centralCorr(Iline_data);
+features = allFeatures(Iline_data);
+
+% extract two different Ilines i and j and plot them
+i = 1; % perfectly aligned data
+j = 115;
+x1 = Iline_data(:,(2*i)-1); 
+f1 = Iline_data(:,2*i)*1e-3; 
+x2 = Iline_data(:,(2*j)-1);
+f2 = Iline_data(:,2*j)*1e-3;
+
+plot(x1,f1);
+hold on
+plot(x2,f2);
+hold off
+xlabel('Arc length / um');
+ylabel('I / mW mm^-^2');
+
+
+if plot_all == true
 figure3 = figure;
 
 if print_pic == true
@@ -82,5 +105,5 @@ if print_pic == true
     picname = ['exp',num2str(exp_num),'_iteration_',num2str(data_i)];
     print(figure3,picname,'-r300','-dpng')
 end
-
+end
  

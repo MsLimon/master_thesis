@@ -7,12 +7,18 @@ function c = centered(Iline_data,varargin)
 % This favours the light beams that are central, therefore, it can be used
 % as a measure of the centredness of the Iline 
 %
-%Input:
+% Input:
 % - I_data is a matrix containing the functions to be evaluates. The first
 % column contains x values and the second column corresponds to the
 % correspoding intensity values. The number of rows can vary
+% Options:
+% - alpha: alpha is proportional to the reciprocal of the standard deviation. 
+% The width of the window is inversely related to the value of alpha. 
+% A larger value of alpha produces a narrower window. 
+% The value of ? defaults to 2.5
+% specify alpha as a name-value pair.
 %
-%Output:
+% Output:
 % - c. vector containing the weighted integral for each function contained 
 % in I_data (in order)
 

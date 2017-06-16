@@ -15,13 +15,7 @@
 if isunix == 1
     % add path to utils
     addpath('~/utils');
-    % Important: adjust path of the COMSOL43/mli directory if necessary
-    addpath('~/Comsol/comsol52a/multiphysics/mli')
-    % Run script once the server is started or use the command below
-    % Start the COMSOL server (for Windows only. This command should be changed
-    % when running the script in a different OS)
-%     system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -f %s -tmpdir %s -autosave off &',PBS_HOSTFILE,TMPDIR);
-    system_command = sprintf('~/Comsol/comsol52a/multiphysics/bin/comsol mphserver -tmpdir %s -autosave off &',TMPDIR);
+    system_command = sprintf('comsol mphserver -tmpdir %s -autosave off &',TMPDIR);
     system(system_command);
     % set termination condition to walltime for bayesopt. in seconds
     maxTime = date2sec(0,12,0,0); % date2sec(days,hours,minutes,seconds)
@@ -32,7 +26,7 @@ else
     % connect MATLAB and COMSOL server
     system('C:\Program Files\COMSOL\COMSOL52a\Multiphysics\bin\win64\comsolmphserver.exe &');
     % set termination condition to walltime for bayesopt. in seconds
-    maxTime = 100;
+    maxTime = 60;
 end
 
 mphstart();
@@ -56,7 +50,7 @@ try
     % start logfile
     ModelUtil.showProgress(logfile);
     % create a handle for the objective function
-    fun = @(x)comsolblackbox(x.beta,x.taperx,x.yin);
+    fun = @(x)comsolblackbox(x.beta,x.taperx,x.yin,'objective','power');
     % call bayesian optimization and store the results
     results = bayesopt(fun,[beta,taperx,yin],'Verbose',1,...
         'IsObjectiveDeterministic',true,...
@@ -64,7 +58,7 @@ try
         'MaxTime',maxTime,... % set walltime
         'PlotFcn',[],...
         'AcquisitionFunctionName','expected-improvement-plus',...
-        'OutputFcn',{@saveToFile}) % save intermediate results into a file
+        'OutputFcn',{@saveToFile,@outputfun2}) % save intermediate results into a file
     
     ModelUtil.disconnect;
 catch exception

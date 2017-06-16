@@ -7,11 +7,11 @@ function s = symmetry(Iline_data,varargin)
 % contained in I_data and returns the corresponding symmetry scores in 
 % the vector m
 %
-%Input:
+% Input:
 % - I_data is a matrix containing the functions to be evaluates. The first
 % column contains x values and the second column corresponds to the
 % correspoding intensity values. The number of rows can vary
-%Options:
+% Options:
 % - weights type: specify weights type as a name-value pair. Valid options
 % are 'uniform','linear' and 'gaussian'. Uniform weights is set as
 % default. 
@@ -19,14 +19,14 @@ function s = symmetry(Iline_data,varargin)
 % 'euclidean'(2-norm) and 'manhattan'(1-norm). Euclidean norm is set as
 % default
 %
-%Output:
+% Output:
 % - s. vector containing the symmetry score for each function contained in
 % I_data (in order)
 % s is calculated by decomposing each function into an symmetric and 
 % anti-symmetric part and calculating the relative norm of the symmetric
 % part.
 %--------------------------------------------------------------------------
-%Example: 
+% Example: 
 %s = symmetry(Iline_data,'weights','gaussian','norm','euclidean');
 
 [n,m] = size(Iline_data);

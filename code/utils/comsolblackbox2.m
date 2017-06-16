@@ -41,7 +41,7 @@ function [P,Iline_data] = comsolblackbox2(beta,taperx,yin)
     tabl = mphtable(model,'tbl2');
     % extract the power from the accumulated probe table
     P = tabl.data(end); % units: W/m
-    model.result().export('plot1').set('plotgroup', 'pg3');
+    model.result().export('plot1').set('plotgroup', 'pg5');
     model.result().export('plot1').set('plot', 'lngr1');
     model.result().export('plot1').set('filename',intensityfile);
     model.result().export('plot1').run();

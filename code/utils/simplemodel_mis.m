@@ -1,4 +1,4 @@
-function [objective] = simplemodel_mis(beta,taperx,yin,M)
+function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 15, 2017
@@ -8,10 +8,23 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M)
 % Input: 
 % - geometrical parameters (beta,taperx,yin)
 % - matrix M with misaligment points with row vector (x_mis, y_mis, alpha)
+% Options:
+% -objective: choose the objective function
 % Output: 
 % - P is the average of the integral of the light intentsity at the
 % output facet
- 
+
+p = inputParser;
+
+defaultObjective = 'power';
+validObjective = {'power','symmetry','skew','center','rmse','correlation','peak'};
+checkObjective = @(x)any(validatestring(x,validObjective));
+addParameter(p,'objective',defaultObjective,checkObjective);
+
+parse(p,varargin{:});
+
+objective_type = p.Results.objective; 
+
 
 % is calculated at the outputfacet
     import com.comsol.model.*
@@ -20,16 +33,18 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M)
     if isunix == 1
         % set the name of the input model file
         modelpath = '';
+        outpath = '/home/fr/fr_fr/fr_mt155/Iline/';
         infile = 'glass_feedthrough_sweep_655.mph'; 
     else
         modelpath = '../';
+        outpath = 'C:\Users\IMTEK\Documents\GitHub\master_thesis\code\3 parameters model\bayesian_optimization\results\';
         infile = 'glass_feedthrough_sweep.mph';
         ModelUtil.showProgress(true);
     end
     % load the model
     model = mphload([modelpath infile]);
     % set the name for the output intensity line file
-    intensityfile = 'intensity_line_multiple.dat';
+    intfile = 'intensity_line.dat';
     
     % pass geometrical parameters to the COMSOL model
     model.param.set('beta', [num2str(beta),'[rad]'], 'Angle of later facet');
@@ -41,22 +56,66 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M)
     model.study('std1').feature('param').set('pname', {'x_mis' 'y_mis' 'alpha'});
     model.study('std1').feature('param').set('punit', {'um' 'um' 'deg'});
 
+    % create line plot
+    model.result.export('plot1').set('filename', [outpath intfile]);
+    model.batch('p1').feature('ex1').set('paramfilename', 'index');
+    model.batch('p1').feature('ex1').set('seq', 'plot1');
+    model.batch('p1').feature('ex1').set('openfile', 'none');
+    model.batch('p1').feature('ex1').run();
+    
     % solve the model
     model.study('std1').run;
     % extract the accumulated probe table
     tabl = mphtable(model,'tbl1');
     % extract the power from the accumulated probe table
     P = tabl.data(:,end); % units: W/m
-    %objective is the mean light power
-    P_mean = mean(P);
-    objective = -P_mean;
-    % export the intensity line data
-    model.result().export('plot1').set('plotgroup', 'pg5');
-    model.result().export('plot1').set('plot', 'lngr1');
-    model.result().export('plot1').set('filename', intensityfile);
-    model.result().export('plot1').run();
-%     % load the data extracted from the model
-%     Iline_data = load([modelpath intensityfile]);
+    % retrieve the Iline data and store in in the matrix Iline_data
+    flst = dir([outpath '*.dat']);
+    [nMisPoints,misalignment_dim] = size(M);
+    for i=1:nMisPoints
+        filename = flst(i).name;
+        path = flst(i).folder;
+        if isunix == 1
+            % load the data extracted from the model
+            Iline = load([path '/' filename]);
+        else
+            Iline = load([path '\' filename]);
+        end
+        [n,m] = size(Iline);
+        if i == 1
+            Iline_data = zeros(n,m*nMisPoints);
+            Iline_data(:,(m*i)-1:m*i) = Iline;
+        else
+            Iline_data(:,(m*i)-1:m*i) = Iline;
+        end
+    end
+ 
+ features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation,peak)
+ features(:,2) = abs(features(:,2)); % take the absolute value of skew
+ feat_mean = mean(features,1);
+ 
+    switch objective_type
+        case 'power'
+        %objective is the mean light power
+        P_mean = mean(P);
+        objective = -P_mean;
+        case 'symmetry'
+        s_mean = feat_mean(1);
+        objective = s_mean;
+        case 'skew'
+        k_mean = feat_mean(2);
+        objective = k_mean;
+        case 'center'
+        c_mean = feat_mean(3);
+        objective = -c_mean;
+        case 'rmse'
+        r_mean = feat_mean(4);
+        objective = r_mean;
+        case 'correlation'
+        corr_mean = feat_mean(5);
+        objective = -corr_mean;
+    end
+
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    

@@ -25,20 +25,22 @@ num_features = 5;
 % preallocate results matrix
 R = zeros(n,num_features*2);
 
-s = symmetry(Iline_data);
+s = symmetry(Iline_data,'weights','gaussian','norm','euclidean');
 s = s';
 
-k = skew(Iline_data);
+k = skew(Iline_data,'mu','lhalf');
 k = k';
 
-c = centered(Iline_data);
+c = centered(Iline_data,'alpha',2.5);
 c = c';
+c = -c;
 
-r = rmse(Iline_data);
+r = rmse(Iline_data,'reference','mean');
 r = r';
 
-corr = centralCorr(Iline_data);
+corr = centralCorr(Iline_data,'reference','mean');
 corr = corr';
+corr = -corr;
 
 R = [s k c r corr];
 

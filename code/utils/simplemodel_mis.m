@@ -107,13 +107,13 @@ objective_type = p.Results.objective;
         objective = k_mean;
         case 'center'
         c_mean = feat_mean(3);
-        objective = -c_mean;
+        objective = c_mean;
         case 'rmse'
         r_mean = feat_mean(4);
         objective = r_mean;
         case 'correlation'
         corr_mean = feat_mean(5);
-        objective = -corr_mean;
+        objective = corr_mean;
     end
 
     % remove the model

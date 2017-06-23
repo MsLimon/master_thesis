@@ -35,7 +35,7 @@ nMisPoints = m/2;
 
 p = inputParser;
 
-defaultWeights = 'uniform';
+defaultWeights = 'gaussian';
 defaultNorm = 'euclidean';
 validWeights = {'uniform','gaussian','linear'};
 validNorm = {'euclidean','manhattan'};

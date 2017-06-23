@@ -26,7 +26,7 @@ switch print_pic_value
         print_pic = true;
     case 'false'
         print_pic = false;
-        
+end        
 if print_pic == true
     % select figure size
     f_width = 1400;
@@ -57,7 +57,7 @@ for i=1:num_limvec
     valid_f = f(valid_id);
     [f_min,I_min]=min(valid_f);
     min_id = valid_id(I_min);
-    x_min = x (min_id);
+    x_min = x(min_id);
     pareto_front(i,:) = [min_id x_min f_min];
 end
 pareto_front = unique(pareto_front,'rows');
@@ -69,7 +69,7 @@ for j = 1:num_pareto
     legendname = sprintf('id = %d',pareto_id(j));
     plot(x_pareto(j),f_pareto(j),'*','LineWidth',linewidth,'DisplayName',legendname)
 end
-LEG=legend('show');
+LEG=legend('show','Location','northeastoutside');
 x_pareto = x(pareto_id);
 f_pareto = f(pareto_id);
 [f_pareto,I] = sort(f_pareto);

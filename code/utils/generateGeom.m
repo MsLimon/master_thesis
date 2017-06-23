@@ -49,18 +49,16 @@ end
 G = rand(nGeomPoints,searchSpace_dim);
 % set bounds for the geometrical parameters
 beta_min = 0;
-% beta_max = 0.0935; %unit: radians
 beta_max = 0.0651; %unit: radians
-% taperx_min = 140; %unit: micrometers
-% taperx_max = 160; % '' ''
 taperx_min = 200; %unit: micrometers
 taperx_max = 230; % '' ''
-yin_min = 5; % '' ''
-yin_max = 20; % '' ''
+yin_min = 0.5; % '' ''
+yin_max = 10; % '' ''
 
 % change limits of the geometrical parameter matrix G
 G(:,1) = (beta_max - beta_min).*G(:,1)+ beta_min;
-G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
+%G(:,2) = (taperx_max - taperx_min).*G(:,2)+ taperx_min;
+G(:,2) = repmat(taperx_min,[nGeomPoints,1]); % fix taperx
 G(:,3) = (yin_max - yin_min).*G(:,3)+ yin_min;
 
 switch model_type 

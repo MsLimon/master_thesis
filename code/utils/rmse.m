@@ -24,7 +24,7 @@ nMisPoints = m/2;
 
 p = inputParser;
 
-defaultReference = 'perfect';
+defaultReference = 'mean';
 validReference = {'perfect','mean'};
 checkReference = @(x)any(validatestring(x,validReference));
 addParameter(p,'reference',defaultReference,checkReference);
@@ -50,8 +50,11 @@ r = zeros(1,nMisPoints);
 for j = 1:nMisPoints
     %x2 = Iline_data(:,(2*j)-1);
     f2 = Iline_data(:,2*j)*1e-3;
-
     diff = (f2-f_reference);
-    r(j) = sqrt((1/num_points)*sum((diff).^2));
+    RMSE = sqrt((1/num_points)*sum((diff).^2));
+    f1f2 = [f_reference;f2];
+    max_f = max(f1f2);
+    min_f = min(f1f2);
+    r(j) = RMSE/(max_f - min_f);
 end
 end

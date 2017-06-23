@@ -23,7 +23,7 @@ nMisPoints = m/2;
 
 p = inputParser;
 
-defaultReference = 'perfect';
+defaultReference = 'mean';
 validReference = {'perfect','mean'};
 checkReference = @(x)any(validatestring(x,validReference));
 addParameter(p,'reference',defaultReference,checkReference);
@@ -50,6 +50,10 @@ r = zeros(1,nMisPoints);
 for j = 1:nMisPoints
     %x2 = Iline_data(:,(2*j)-1);
     f2 = Iline_data(:,2*j)*1e-3;
-    r(j) = xcorr(f_reference,f2,0);
+    %r(j) = xcorr(f_reference,f2,0);
+    C = normxcorr2(f_reference,f2);
+    midrow = C(ceil(end/2), :);
+    r(j) = midrow;
+    
 end
 end

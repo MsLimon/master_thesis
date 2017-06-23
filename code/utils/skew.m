@@ -24,7 +24,7 @@ nMisPoints = m/2;
 
 p = inputParser;
 
-defaultMean = 'mean';
+defaultMean = 'lhalf';
 validMean = {'mean','lhalf'};
 checkMean = @(x)any(validatestring(x,validMean));
 addParameter(p,'mu',defaultMean,checkMean);

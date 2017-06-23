@@ -14,8 +14,8 @@ plot_all = false;
 print_pic = false;
 
 %load the Iline_data
-data_i= 17;
-exp_num = 9;
+data_i= 32;
+exp_num = 1;
 Iline_data = data(data_i).Iline;
 [n,m] = size(Iline_data);
 num_points = n;
@@ -40,7 +40,7 @@ c = centered(Iline_data,'alpha',2.5);
 % calculate similarity
 error = rmse(Iline_data);
 similarity = centralCorr(Iline_data);
-features = allFeatures(Iline_data);
+%features = allFeatures(Iline_data);
 
 % extract two different Ilines i and j and plot them
 i = 1; % perfectly aligned data
@@ -50,6 +50,17 @@ f1 = Iline_data(:,2*i)*1e-3;
 x2 = Iline_data(:,(2*j)-1);
 f2 = Iline_data(:,2*j)*1e-3;
 
+C = normxcorr2(f1,f2);
+midrow = C(ceil(end/2), :);
+
+diff = (f2-f1);
+RMSE = sqrt((1/num_points)*sum((diff).^2));
+f1f2 = [f1;f2];
+max_f = max(f1f2);
+min_f = min(f1f2);
+NRMSE = RMSE/(max_f - min_f);
+
+figure1 = figure;
 plot(x1,f1);
 hold on
 plot(x2,f2);

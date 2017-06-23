@@ -237,10 +237,10 @@ end
 x = -statistics_vector_power(:,1); % power mean
 f = statistics_vector_symmetry(:,1); % symmetry mean
 
-std_lim = -2:-0.0005:-2.0155;
+std_lim = -1.6:-0.0005:-1.9;
 % TODO - automatically find the contraint boundaries (look for min of each
 % function(mean and std) and get the corresponding std)
-[pareto_front,fig3] = pareto_plot(x,f,std_lim);
+[pareto_front,fig3] = pareto_plot(x,f,std_lim,'print','true');
 %plot(x,f,'s')
 xlabel('power mean');
 ylabel('symmetry mean');

@@ -15,7 +15,7 @@ function R = allFeatures(Iline_data)
 % in I_data (in order). Every column corresponds to a different feature and
 % every row corresponds to the features of an intensity profile.
 % The order of the features is 
-% R = {'symmetry','skew','center','rmse','correlation','peak'}; 
+% R = {'symmetry','skew','center','rmse','correlation'}; 
 
 [n,m] = size(Iline_data);
 num_points = n;

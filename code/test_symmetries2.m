@@ -14,7 +14,8 @@ plot_all = false;
 print_pic = false;
 
 %load the Iline_data
-data_i= 32;
+
+data_i= 17;
 exp_num = 1;
 Iline_data = data(data_i).Iline;
 [n,m] = size(Iline_data);
@@ -44,7 +45,7 @@ similarity = centralCorr(Iline_data);
 
 % extract two different Ilines i and j and plot them
 i = 1; % perfectly aligned data
-j = 115;
+j = 22;
 x1 = Iline_data(:,(2*i)-1); 
 f1 = Iline_data(:,2*i)*1e-3; 
 x2 = Iline_data(:,(2*j)-1);
@@ -61,9 +62,17 @@ min_f = min(f1f2);
 NRMSE = RMSE/(max_f - min_f);
 
 figure1 = figure;
+
 plot(x1,f1);
 hold on
+ax = gca;
+ax.ColorOrderIndex = 1;
+plot(x1,line1);
+ax = gca;
+ax.ColorOrderIndex = 2;
 plot(x2,f2);
+ax.ColorOrderIndex = 2;
+plot(x2,line2);
 hold off
 xlabel('Arc length / um');
 ylabel('I / mW mm^-^2');

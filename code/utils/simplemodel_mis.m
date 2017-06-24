@@ -17,7 +17,7 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
 p = inputParser;
 
 defaultObjective = 'power';
-validObjective = {'power','symmetry','skew','center','rmse','correlation','peak'};
+validObjective = {'power','symmetry','skew','center','rmse','correlation'};
 checkObjective = @(x)any(validatestring(x,validObjective));
 addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -90,7 +90,7 @@ objective_type = p.Results.objective;
         end
     end
  
- features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation,peak)
+ features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
  features(:,2) = abs(features(:,2)); % take the absolute value of skew
  feat_mean = mean(features,1);
  

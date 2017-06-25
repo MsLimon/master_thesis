@@ -3,6 +3,9 @@
 % Last Update: June 14, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
+% TODO - calculate average intensity for all number of points 
+% (for some geometry) and compare lines. Calculate difference! (rmse or
+% something like this)
 
 % add path to utils
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');

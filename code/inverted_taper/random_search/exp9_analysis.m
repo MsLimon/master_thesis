@@ -61,8 +61,8 @@ select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
-feat1_id = 2;
-feat2_id= 1;
+feat1_id = 1;
+feat2_id= 2;
 
 for i=1:nGeomPoints
     current_geometry = data(i).geometry;
@@ -294,16 +294,16 @@ max_y = max(y_out);
 min_y =min(y_out);
 max_beta = max(beta);
 min_beta = min(beta);
-a = linspace(min_y,max_y,50);
-b = linspace(min_beta,max_beta,50);
+a = linspace(min_beta,max_beta,50);
+b = linspace(min_y,max_y,50);
 [xq,yq] = meshgrid(a, b);
-vq = griddata(y_out,beta,v,xq,yq);
+vq = griddata(beta,y_out,v,xq,yq);
 
 mesh(xq,yq,vq);
 hold on
-plot3(y_out,beta,v,'o');
-xlabel('y_o_u_t / um');
-ylabel('beta / rad');
+plot3(beta,y_out,v,'o');
+xlabel('beta / rad');
+ylabel('y_o_u_t / um');
 zlabel(feature_labels(feat1_id));
 
 

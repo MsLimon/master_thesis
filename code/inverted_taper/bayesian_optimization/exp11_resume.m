@@ -1,9 +1,9 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 24, 2017
+% Last Update: June 25, 2017
 
-% Bayesian optimization on geometrical space with misalignment. Parameter space
-% is (beta, y_in)
+% Resume Bayesian optimization on geometrical space with misalignment. Parameter space
+% is (beta, taper_x, y_out)
 
 % Important script parameters:
 % - maxTime : specify walltime for the termination condition of the optimizer 
@@ -39,11 +39,6 @@ rng('shuffle');
 % save the current random generator settings in s:
 %s = rng;
 
-% define the optimization parameters
-beta = optimizableVariable('beta',[0,0.0651]); %unit: radians
-taperx = 200; %unit: micrometers (fixed)
-yout = optimizableVariable('yout',[0.5,10]); %unit: micrometers
-
 reuse_misalignment = true;
 
 if reuse_misalignment == true
@@ -64,19 +59,16 @@ import com.comsol.model.*
 import com.comsol.model.util.*
 try
     % specify logfile name
-    logfile = 'logfile_exp11.txt';
+    logfile = 'logfile_exp11_resume.txt';
     % start logfile
     ModelUtil.showProgress(logfile);
-    % create a handle for the objective function
-    fun = @(x)inverted_mis_bayes(x.beta,taperx,x.yout,M,'objective','power');
+    
+    % load the results
+    load('BayesoptResults.mat');
     % call bayesian optimization and store the results
-    results = bayesopt(fun,[beta,yout],'Verbose',1,...
-        'IsObjectiveDeterministic',true,...
+    newresults = resume(BayesoptResults,...
         'MaxObjectiveEvaluations',100,...
-        'MaxTime',maxTime,... % set walltime
-        'PlotFcn',[],...
-        'AcquisitionFunctionName','expected-improvement-plus',...
-        'OutputFcn',{@saveToFile,@outputfun}) % save intermediate results into a file
+        'MaxTime',maxTime) % set walltime
     
     ModelUtil.disconnect;
 catch exception

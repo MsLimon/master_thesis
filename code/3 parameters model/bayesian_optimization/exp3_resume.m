@@ -2,7 +2,7 @@
 % University of Freiburg, Germany
 % Last Update: June 16, 2017
 
-% Bayesian optimization on geometrical space with misalignment. Parameter space
+% Resume Bayesian optimization on geometrical space with misalignment. Parameter space
 % is (beta, taper_x, y_in)
 
 % Important script parameters:
@@ -39,11 +39,6 @@ rng('shuffle');
 % save the current random generator settings in s:
 %s = rng;
 
-% define the optimization parameters
-beta = optimizableVariable('beta',[0,0.0651]); %unit: radians
-taperx = optimizableVariable('taperx',[200,230]); %unit: micrometers
-yin = optimizableVariable('yin',[5,20]); %unit: micrometers
-
 reuse_misalignment = true;
 
 if reuse_misalignment == true
@@ -72,6 +67,7 @@ try
     load('BayesoptResults.mat');
     % call bayesian optimization and store the results
     newresults = resume(BayesoptResults,...
+        'MaxObjectiveEvaluations',100,...
         'MaxTime',maxTime) % set walltime
     
     ModelUtil.disconnect;

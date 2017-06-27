@@ -64,6 +64,7 @@ select_feat_label = containers.Map(feature_ids,feature_labels);
 feat1_id = 4;
 feat2_id= 2;
 
+
 for i=1:nGeomPoints
     current_geometry = data(i).geometry;
     current_beta = current_geometry(1);  %unit: radians

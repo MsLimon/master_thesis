@@ -61,7 +61,7 @@ select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
-feat1_id = 1;
+feat1_id = 4;
 feat2_id= 2;
 
 for i=1:nGeomPoints

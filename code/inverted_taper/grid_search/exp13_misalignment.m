@@ -2,7 +2,7 @@
 % University of Freiburg, Germany
 % Last Update: June 26, 2017
 % 
-% Random search on geometrical space with misalignment. Parameter space
+% Grid search on geometrical space with misalignment. Parameter space
 % is (beta, taper_x, y_out). inverted tape model
 % 
 % How it works:
@@ -47,8 +47,8 @@ import com.comsol.model.*
 import com.comsol.model.util.*
 try
     % set the paths and filenames
-    logfile = 'logfile_exp9.txt';
-    outstruct_name = 'exp9_results.mat';
+    logfile = 'logfile_exp13.txt';
+    outstruct_name = 'exp13_results.mat';
     reuse_geometry = false;
     reuse_misalignment = true;
     if isunix == 1
@@ -69,8 +69,15 @@ try
         [nGeomPoints,searchSpace_dim] = size(G);
     else
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 20;
-        G = generateGeom(nGeomPoints,'model','simple');
+        numPoints = 7;
+        searchSpace_dim = 3;
+        G = zeros(numPoints^2,searchSpace_dim);
+        beta = linspace(0,0.0651,numPoints); 
+        yout = linspace(0.5,10,numPoints);
+        [betaq,youtq] = meshgrid(beta, yout);
+        G(:,1) = reshape(betaq,[numPoints^2,1]);
+        G(:,3) = reshape(youtq,[numPoints^2,1]);
+        G(:,2) = repmat(200,[numPoints^2,1]);        
         [nGeomPoints,searchSpace_dim] = size(G);
         % save the generated geometry
         dlmwrite([outpath 'geometry.txt'], G);

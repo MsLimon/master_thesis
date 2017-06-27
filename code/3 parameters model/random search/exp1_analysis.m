@@ -61,7 +61,11 @@ select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
 feat1_id = 1;
-feat2_id= 5;
+feat2_id= 4;
+
+numFeatures = length(feature_ids);
+R_perfect = zeros(nGeomPoints,searchSpace_dim + numFeatures);
+R_perfect(:,1:end-numFeatures) = G; 
 
 for i=1:nGeomPoints
     current_geometry = data(i).geometry;
@@ -79,6 +83,7 @@ for i=1:nGeomPoints
     median_P = median(P);
     std_P =  std(P);
     
+    
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
@@ -87,6 +92,8 @@ for i=1:nGeomPoints
 
     features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
     features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
+    features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
+    R_perfect(i,end+1-numFeatures:end) = features_perfect;
     features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
     feat_median = median(features,1);
@@ -160,6 +167,9 @@ ax = gca;
 ax.ColorOrderIndex = 1;
 plot(G(:,i),statistics_vector_feat1(:,end),'*','LineWidth',linewidth);
 
+%plot the results without misalignment
+plot(G(:,i),R_perfect(:,searchSpace_dim+ feat1_id),'s')
+
 %highlight the best power point
 ax.ColorOrderIndex = 7;
 plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth);
@@ -170,7 +180,7 @@ plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat1_id));
-AX =legend('misalignment points','mean value','median value','best point','Location','northeastoutside');
+AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size);
@@ -211,13 +221,16 @@ ax = gca;
 ax.ColorOrderIndex = 1;
 plot(G(:,i),statistics_vector_feat2(:,end),'*','LineWidth',linewidth);
 
+%plot the results without misalignment
+plot(G(:,i),R_perfect(:,searchSpace_dim+ feat2_id),'s')
+
 %highlight the best symmetry point
 ax.ColorOrderIndex = 7;
 plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat2_id));
-AX =legend('misalignment points','mean value','median value','best point','Location','northeastoutside');
+AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size);

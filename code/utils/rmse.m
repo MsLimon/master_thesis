@@ -34,13 +34,16 @@ parse(p,varargin{:});
 reference_type = p.Results.reference;
 
 i = 1; % reference is intensity line of perfectly line case
-%x_reference = Iline_data(:,(2*i)-1);
 
+% set min and max values to normalize rmse
+all_f = Iline_data(:,2:2:m);
+max_f = max(max(all_f));
+min_f = 0;
+    
 switch reference_type
     case 'perfect'
     f_reference = Iline_data(:,2*i)*1e-3;
-    case 'mean'
-    all_f = Iline_data(:,2:2:m);
+    case 'mean'    
     mean_f = mean(all_f,2)*1e-3;
     f_reference = mean_f;
 end
@@ -52,9 +55,6 @@ for j = 1:nMisPoints
     f2 = Iline_data(:,2*j)*1e-3;
     diff = (f2-f_reference);
     RMSE = sqrt((1/num_points)*sum((diff).^2));
-    f1f2 = [f_reference;f2];
-    max_f = max(f1f2);
-    min_f = min(f1f2);
     r(j) = RMSE/(max_f - min_f);
 end
 end

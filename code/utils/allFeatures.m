@@ -35,10 +35,10 @@ c = centered(Iline_data,'alpha',2.5);
 c = c';
 c = -c;
 
-r = rmse(Iline_data,'reference','mean');
+r = rmse(Iline_data,'reference','perfect');
 r = r';
 
-corr = centralCorr(Iline_data,'reference','mean');
+corr = centralCorr(Iline_data,'reference','perfect');
 corr = corr';
 corr = -corr;
 

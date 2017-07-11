@@ -1,18 +1,19 @@
-function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
+function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: July 09, 2017
 %
-% Solve comsol model for a set of geometrical parameters
-% Input: geometrical parameters (beta,taperx,yin)
+% Solve comsol model for a set of geometrical parameters and a number of
+% misaligment points
+% Input: 
+% - geometrical parameters (beta,taperx,yout)
+%
 % Output: 
-% - objective = -P, where P is the integral of the light intentsity at the
-% output facet
-% - constraint gives a negative number if the average intensity at the
-% output facet is more that I_lowerBound (this is used in bayeopt)
-% Important script parameters:
-% - infile (in objective function) : name of the file containining the model
-% - I_lowerBound (in objective function) : intensity lower bound
+% - P is the integral of the light intentsity at the
+% output face
+% - modelpath is the path where the comsol model is stored
+% - intensityfile is the filename of the intensity line plot. Intesity line
+% - nMisPoints is the number of misalignment points 
 
     p = inputParser;
 
@@ -27,7 +28,7 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
     
     import com.comsol.model.*
     import com.comsol.model.util.*
-
+    
     % specify I_lowerBound
     I_lowerBound = 0; %units: mW/mm^2
 
@@ -35,11 +36,11 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
         % set the name of the input model file
         modelpath = '';
         outpath = '/home/fr/fr_fr/fr_mt155/Iline/';
-        infile = 'glass_feedthrough_655.mph';
+        infile = 'inverted_taper_655.mph';
     else
         modelpath = '../';
-        outpath = 'C:\Users\IMTEK\Documents\GitHub\master_thesis\code\3 parameters model\bayesian_optimization\results\';
-        infile = 'glass_feedthrough.mph';
+        outpath = 'C:\Users\IMTEK\Documents\GitHub\master_thesis\code\inverted_taper\random_search\results\';
+        infile = 'inverted_taper.mph'; 
         ModelUtil.showProgress(true);
     end
     % load the model
@@ -50,8 +51,8 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
     % pass geometrical parameters to the COMSOL model
     model.param.set('beta', [num2str(beta),'[rad]'], 'Angle of later facet');
     model.param.set('taper_x', [num2str(taperx),'[um]'], 'Length of the taper in propagation direction');
-    model.param.set('y_in', [num2str(yin),'[um]'], 'Taper height on the input facet');
-    
+    model.param.set('y_out', [num2str(yout),'[um]'], 'Taper height on the output facet');
+
     % solve the model
     model.study('std1').run;
     % extract the accumulated probe table
@@ -94,9 +95,9 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
     
     % --calculate the intensity --
     % change the dimensions of yin from microns to meter
-    yin_m = yin*1e-6; %units: meters
+    yout_m = yout*1e-6; %units: meters
     % calculate average intensity
-    I = P / yin_m; %units: W/m^2
+    I = P / yout_m; %units: W/m^2
     % change intensity units to mW/mm^2
     I = I * 1e-3; %units: mW/mm^2
     
@@ -109,5 +110,6 @@ function [objective, constraint] = comsolblackbox(beta,taperx,yin,varargin)
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    
-    
+
 end 
+    

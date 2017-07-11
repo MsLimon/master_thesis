@@ -14,19 +14,18 @@ function[objective] = inverted_mis_bayes(beta,taperx,yout,M,varargin)
 % - P is the average of the integral of the light intentsity at the
 % output facet
 
-p = inputParser;
+    p = inputParser;
 
-defaultObjective = 'power';
-validObjective = {'power','symmetry','skew','center','rmse','correlation'};
-checkObjective = @(x)any(validatestring(x,validObjective));
-addParameter(p,'objective',defaultObjective,checkObjective);
+    defaultObjective = 'power';
+    validObjective = {'power','symmetry','skew','center','rmse','correlation'};
+    checkObjective = @(x)any(validatestring(x,validObjective));
+    addParameter(p,'objective',defaultObjective,checkObjective);
 
-parse(p,varargin{:});
+    parse(p,varargin{:});
 
-objective_type = p.Results.objective; 
+    objective_type = p.Results.objective; 
 
 
-% is calculated at the outputfacet
     import com.comsol.model.*
     import com.comsol.model.util.*
 
@@ -91,9 +90,9 @@ objective_type = p.Results.objective;
         end
     end
  
- features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
- features(:,2) = abs(features(:,2)); % take the absolute value of skew
- feat_mean = mean(features,1);
+    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
+    features(:,2) = abs(features(:,2)); % take the absolute value of skew
+    feat_mean = mean(features,1);
  
     switch objective_type
         case 'power'
@@ -114,7 +113,7 @@ objective_type = p.Results.objective;
         objective = r_mean;
         case 'correlation'
         corr_mean = feat_mean(5);
-        objective = corr_mean;
+        objective = corr_mean;    
     end
 
     % remove the model

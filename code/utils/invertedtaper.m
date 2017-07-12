@@ -18,7 +18,7 @@ function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
     p = inputParser;
 
     defaultObjective = 'power';
-    validObjective = {'power','symmetry','skew','center','rmse','correlation'};
+    validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained'};
     checkObjective = @(x)any(validatestring(x,validObjective));
     addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -28,9 +28,6 @@ function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
     
     import com.comsol.model.*
     import com.comsol.model.util.*
-    
-    % specify I_lowerBound
-    I_lowerBound = 0; %units: mW/mm^2
 
     if isunix == 1
         % set the name of the input model file
@@ -71,6 +68,12 @@ function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
     features(:,2) = abs(features(:,2)); % take the absolute value of skew
     feat_mean = mean(features,1);
     
+    % specify the upper bounds
+    s_upperBound = 1; 
+    s = feat_mean(1);
+    rmse_upperBound = 1;
+    rmse = feat_mean(4);
+    
     switch objective_type
         case 'power'
         % objective is the mean light power
@@ -91,22 +94,21 @@ function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
         case 'correlation'
         corr_mean = feat_mean(5);
         objective = corr_mean;
+        case 'constrained'
+        c_mean = feat_mean(3);
+        objective = c_mean;
+        s_upperBound = 0.20; 
+        rmse_upperBound = 0.3;
     end
-    
-    % --calculate the intensity --
-    % change the dimensions of yin from microns to meter
-    yout_m = yout*1e-6; %units: meters
-    % calculate average intensity
-    I = P / yout_m; %units: W/m^2
-    % change intensity units to mW/mm^2
-    I = I * 1e-3; %units: mW/mm^2
+
+    % set the constraint
+    constraint_s = s - s_upperBound;
+    constraint_rmse = rmse - rmse_upperBound;
+    constraint = [constraint_s, constraint_rmse];
     
     % positive values of the contraint means that the constraint is not
-    % satisfied. Here the constraint is satisfied if the intensity is
-    % greater than I_lowerBound
-    
-    % set the constraint
-    constraint = I_lowerBound - I;
+    % satisfied.    
+
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    

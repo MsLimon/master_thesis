@@ -8,8 +8,8 @@ if print_pic == true
     f_width = 1400;
     f_height = 700;
     %select line width of the plot lines
-    linewidth = 1.5;
-    font_size = 14;
+    linewidth = 2;
+    font_size = 24;
 else
     % select figure size
     f_width = 700;
@@ -22,24 +22,37 @@ end
 fig.Position = [100, 100, f_width, f_height];
 
 n = length(results);
-for i = 5:n
+for i = 1:n
+    if i==8
     I =results(i).Iline;
-    dispname = sprintf('number of elements = %d',i);
+    dispname = sprintf('%d',i);
+    % change units to mW/mm^2
+    I(:,2) = I(:,2) * 1e-3; %unit: mW/mm^2
+    plot(I(:,1),I(:,2),'Color',[0.7300, 0.2700, 0.6300],'DisplayName',dispname,'LineWidth',linewidth);
+    else
+    I =results(i).Iline;
+    dispname = sprintf('%d',i);
+        % change units to mW/mm^2
+    I(:,2) = I(:,2) * 1e-3; %unit: mW/mm^2
     plot(I(:,1),I(:,2),'DisplayName',dispname,'LineWidth',linewidth);
     hold on;
+    end
 end
 hold off;
-legend('show');
+%legend('show');
 
-LEG=legend('show');
-xlabel('Arc length / um');
+LEG=legend('show','Location','northeast');
+v = get(LEG,'title');
+set(v,'string','N');
+xlabel('Output facet length / um');
 ylabel('I / mW mm^-^2');
 set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size)
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
+
 
 if print_pic == true
     % save the figure to a png file
     % the file name
-    picname = ['mesh_resolution_Iline_5678'];
+    picname = ['mesh_resolution_Iline'];
     print(fig,picname,'-r300','-dpng')
 end

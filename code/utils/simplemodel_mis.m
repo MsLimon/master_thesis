@@ -1,4 +1,4 @@
-function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
+function [objective, constraint] = simplemodel_mis(beta,taperx,yin,M,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 15, 2017
@@ -17,7 +17,7 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
 p = inputParser;
 
 defaultObjective = 'power';
-validObjective = {'power','symmetry','skew','center','rmse','correlation'};
+validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained'};
 checkObjective = @(x)any(validatestring(x,validObjective));
 addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -90,9 +90,15 @@ objective_type = p.Results.objective;
         end
     end
  
- features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
- features(:,2) = abs(features(:,2)); % take the absolute value of skew
- feat_mean = mean(features,1);
+    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
+    features(:,2) = abs(features(:,2)); % take the absolute value of skew
+    feat_mean = mean(features,1);
+ 
+    % specify the upper bounds
+    s_upperBound = 1; 
+    s = feat_mean(1);
+    rmse_upperBound = 1;
+    rmse = feat_mean(4);
  
     switch objective_type
         case 'power'
@@ -114,8 +120,21 @@ objective_type = p.Results.objective;
         case 'correlation'
         corr_mean = feat_mean(5);
         objective = corr_mean;
+        case 'constrained'
+        c_mean = feat_mean(3);
+        objective = c_mean;
+        s_upperBound = 0.20; 
+        rmse_upperBound = 0.3;
     end
 
+    % set the constraint
+    constraint_s = s - s_upperBound;
+    constraint_rmse = rmse - rmse_upperBound;
+    constraint = [constraint_s, constraint_rmse];
+    
+    % positive values of the contraint means that the constraint is not
+    % satisfied.
+    
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    

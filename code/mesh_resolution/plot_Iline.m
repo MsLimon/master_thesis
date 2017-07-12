@@ -1,5 +1,5 @@
 % set to true to change the figure appearance to print the image
-print_pic = true;
+print_pic = false;
 
 fig = figure;
 
@@ -48,6 +48,32 @@ xlabel('Output facet length / um');
 ylabel('I / mW mm^-^2');
 set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
+
+% save the results to an ASCII-delimited text file
+R = dlmread('mesh_study_results.txt');
+% -------plot results------
+% get the power corresponding to the solution with highest resolution
+P_accurate = R(end,end);
+% subtact the most accurate solution to the results to see if the solutions
+% select figure size
+f_width = 1400;
+f_height = 700;
+%select line width of the plot lines
+linewidth = 2;
+font_size = 24;
+% converge to this value
+plot(R(:,1),R(:,2)-P_accurate,'LineWidth',linewidth);
+xlabel('N');
+ylabel('Relative error / W m^{-1}');
+% Save plot to jpeg file
+
+fig = gcf;
+fig.Position = [100, 100, f_width, f_height];
+set(gca,'FontSize',font_size,'LineWidth',linewidth);
+
+picname = 'meshResolutionStudy';
+%saveas(fig,[outpath picname],'jpeg');
+print(fig, picname,'-r300','-dpng')
 
 
 if print_pic == true

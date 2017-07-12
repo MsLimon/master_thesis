@@ -92,6 +92,7 @@ for i=1:nGeomPoints
 
     features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
     features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
+    % extract the data from the perfectly aligned case
     features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
     R_perfect(i,end+1-numFeatures:end) = features_perfect;
     features(:,3) = abs(features(:,3)); % take the absolute value of skew

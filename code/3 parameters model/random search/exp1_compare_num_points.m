@@ -8,7 +8,11 @@
 % something like this)
 
 % add path to utils
+if ispc == true
 addpath('C:\Users\IMTEK\Documents\GitHub\master_thesis\code\utils');
+elseif ismac == true
+addpath('/Users/lime/master_thesis/code/utils');
+end
 
 %color dictionary
 % colors: yellow [1  0.8431 0], green [0.1647 0.3843 0.2745]
@@ -23,8 +27,10 @@ selectcolor = containers.Map(color_code,color_names);
 % Analize random search with misalignment results
 
 % specify results path, output path and file names for the output data
-currentPath = pwd;
+%currentPath =pwd;
+currentPath = '/Users/lime/master_thesis/code/3 parameters model/num_points';
 experiments = {'exp1','90_num_points','60_num_points','30_num_points'};
+experiment_label = {'120','90','60','30'};
 nExperiments = length(experiments);
 print_pic = true;
 
@@ -32,10 +38,10 @@ fig = figure;
 if print_pic == true
     % select figure size
     f_width = 1700;
-    f_height= 1000;
+    f_height= 500;
     %select line width of the plot lines
-    linewidth = 1.5;
-    font_size = 16;
+    linewidth = 2;
+    font_size = 24;
 else
     % select figure size
     f_width = 700;
@@ -46,13 +52,16 @@ else
 end
 fig.Position = [100, 100, f_width, f_height];
 
+% adapt file separator to the operating system
+f = filesep;
+
 for j = 1:nExperiments
 experiment = experiments{j};
-resultsPath_mis = [currentPath '\results\' experiment '\'];
+resultsPath_mis = [currentPath f 'results' f];
 resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
-outpath = [currentPath '\results\analysis\' experiment '\'];
-outstruct_name = [experiment '_analysis.mat'];
+% outpath = [currentPath f 'results' f 'analysis' f experiment f];
+% outstruct_name = [experiment '_analysis.mat'];
 
 
 % load results data
@@ -62,13 +71,27 @@ load([resultsPath_mis resultsfile]);
 G = dlmread([resultsPath_mis 'geometry.txt']);
 [nGeomPoints,searchSpace_dim] = size(G);
 
-statistics_vector_power = zeros(nGeomPoints,3);
-statistics_vector_symmetry = zeros(nGeomPoints,3);
+statistics_vector_feat1 = zeros(nGeomPoints,3);
+statistics_vector_feat2 = zeros(nGeomPoints,3);
+
+% dictionaries to swap between objective functions
+feature_ids = {1,2,3,4,5,6};
+feature_names = {'power','symmetry','skew','center','rmse','correlation'};
+feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
+select_feature = containers.Map(feature_ids,feature_names);
+select_feat_label = containers.Map(feature_ids,feature_labels);
+
+numFeatures = length(feature_ids);
+
+%select two different features
+feat1_id = 1;
+feat2_id= 4;
+
 % initialize best power to an empty vector (best geometry)
-best_power = 0;
-best_power_id = 0;
-best_symmetry = 1;
-best_symmetry_id = 0;
+best_feat1 = 100;
+best_feat1_id = 0;
+best_feat2 = 100;
+best_feat2_id = 0;
 
 for i=1:nGeomPoints
     current_geometry = data(i).geometry;
@@ -86,83 +109,70 @@ for i=1:nGeomPoints
     median_P = median(P);
     std_P =  std(P);
     
+    
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
     num_points = n;
     nMisPoints = m/2;
-    
-    s = symmetry(Iline_data,'weights','gaussian','norm','euclidean');
-    s = s';
-    mean_s = mean(s);
-    median_s = median(s);
-    std_s = std(s);
-    k = skew(Iline_data,'mu','mean');
-    mean_k = mean(abs(k));
-    median_k = median(abs(k));
-    std_k = std(k);
+
+    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
+    features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
+
+    features(:,3) = abs(features(:,3)); % take the absolute value of skew
+    feat_mean = mean(features,1);
+    feat_median = median(features,1);
+    feat_std = std(features,1);
+   
  
-     value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
+    value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
     if i==1
-        power_plot_vector = [P value];
-        symmetry_plot_vector = [s value];
+        feat1_plot_vector = [features(:,feat1_id) value];
+        feat2_plot_vector = [features(:,feat2_id) value];
     else
-        power_plot_vector = [power_plot_vector; P value];
-        symmetry_plot_vector = [symmetry_plot_vector; s value];
+        feat1_plot_vector = [feat1_plot_vector;features(:,feat1_id) value];
+        feat2_plot_vector = [feat2_plot_vector;features(:,feat2_id) value];
     end
-    power_stats = [mean_P std_P median_P];
-    statistics_vector_power(i,:) = power_stats;
-    statistics_vector_symmetry(i,:) = [mean_s std_s median_s];
-    
-    if mean_P > best_power
-        best_power = mean_P;
-        best_candidate_P = current_geometry;
-        best_power_id = i;
-    end 
-    std_lim = 0.1;
-    objective = mean_s;
-    if objective < best_symmetry && std_s < std_lim
-        best_symmetry = objective;
-        best_candidate_s = current_geometry;
-        best_symmetry_id = i;
-    end 
+    feat1_stats = [feat_mean(feat1_id) feat_std(feat1_id) feat_median(feat1_id)];
+    statistics_vector_feat1(i,:) = feat1_stats;
+    statistics_vector_feat2(i,:) = [feat_mean(feat2_id) feat_std(feat2_id) feat_median(feat2_id)];
+
 end
 
 hold on
-subplot(2,1,1);
+% subplot(2,1,1);
 x = 1:length(data);
-f1 = statistics_vector_power(:,1);
-legendname = sprintf('experiment: %s',experiment);
+f1 = statistics_vector_feat1(:,1);
+legendname = sprintf('%s points',experiment_label{j});
 %plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
-err = statistics_vector_power(:,2);
+err = statistics_vector_feat1(:,2);
 errorbar(x,f1,err,'+','DisplayName',legendname,'LineWidth',linewidth);
 xlabel('geometry point number');
-ylabel('power mean');
+ylabel(feature_labels(feat1_id));
+xlim([0 21])
 AX = legend('show','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
-hold on
-subplot(2,1,2);
-f2 = statistics_vector_symmetry(:,1); % symmetry mean
-%plot(x,f2,'-','DisplayName',legendname,'LineWidth',linewidth);
-err = statistics_vector_symmetry(:,2);
-errorbar(x,f2,err,'+','DisplayName',legendname,'LineWidth',linewidth);
-
-xlabel('geometry point number');
-ylabel('symmetry mean');
-AX = legend('show','Location','northeastoutside');
-LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
+set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
+% hold on
+% subplot(2,1,2);
+% f2 = statistics_vector_feat2(:,1); % symmetry mean
+% %plot(x,f2,'-','DisplayName',legendname,'LineWidth',linewidth);
+% err = statistics_vector_feat2(:,2);
+% errorbar(x,f2,err,'+','DisplayName',legendname,'LineWidth',linewidth);
+% 
+% xlabel('geometry point number');
+% ylabel(feature_labels(feat2_id));
+% AX = legend('show','Location','northeastoutside');
+% LEG = findobj(AX,'type','text');
+% set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+% set(gca,'fontsize',font_size,'LineWidth',linewidth);
 
 end
 
 hold off
 if print_pic == true
-% Save plot to vector image .eps
-fig.PaperPositionMode = 'auto';
-filename_Pplot = 'num_points_comparison';
-print(fig,'-dpng','-r300', filename_Pplot)
-print(fig,'-depsc','-tiff','-r300', filename_Pplot)
+    % Save plot to vector image .eps
+    picname = ['num_points_comparison'];
+    print(fig,picname,'-r300','-dpng')
 end

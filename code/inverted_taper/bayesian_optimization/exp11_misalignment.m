@@ -68,7 +68,7 @@ try
     % start logfile
     ModelUtil.showProgress(logfile);
     % create a handle for the objective function
-    fun = @(x)inverted_mis_bayes(x.beta,taperx,x.yout,M,'objective','power');
+    fun = @(x)inverted_mis_bayes(x.beta,taperx,x.yout,M,'objective','constrained');
     % call bayesian optimization and store the results
     results = bayesopt(fun,[beta,yout],'Verbose',1,...
         'IsObjectiveDeterministic',true,...

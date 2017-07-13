@@ -26,14 +26,33 @@ selectcolor = containers.Map(color_code,color_names);
  
 % Analize random search with misalignment results
 
+% adapt file separator to the operating system
+f = filesep;
+
 % specify results path, output path and file names for the output data
-%currentPath =pwd;
-currentPath = '/Users/lime/master_thesis/code/3 parameters model/num_points';
-experiments = {'exp1','90_num_points','60_num_points','30_num_points'};
-experiment_label = {'120','90','60','30'};
+currentPath =pwd;
+resultsPath_mis = [currentPath f 'results' f 'fix_points' f];
+%currentPath = '/Users/lime/master_thesis/code/3 parameters model/num_points';
+experiments = {'misalignment_1','misalignment_2','misalignment_3','misalignment_4','misalignment_5'};
+experiment_label = {'1','2','3','4','5'};
 nExperiments = length(experiments);
 print_pic = true;
 
+% load geometry
+G = dlmread([resultsPath_mis 'geometry.txt']);
+[nGeomPoints,searchSpace_dim] = size(G);
+
+% dictionaries to swap between objective functions
+feature_ids = {1,2,3,4,5,6};
+feature_names = {'power','symmetry','skew','center','rmse','correlation'};
+feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
+%feature_labels ={'\epsilon_P ','\epsilon_S','skewness','\epsilon_{P_{Gaussian}}','\epsilon_{rmse}','\epsilon_{C}'};
+select_feature = containers.Map(feature_ids,feature_names);
+select_feat_label = containers.Map(feature_ids,feature_labels);
+
+numFeatures = length(feature_ids);
+
+for k=1:6
 fig = figure;
 if print_pic == true
     % select figure size
@@ -52,46 +71,27 @@ else
 end
 fig.Position = [100, 100, f_width, f_height];
 
-% adapt file separator to the operating system
-f = filesep;
+%select two different features
+
+feat1_id = k;
+
+statistics_vector_ref = zeros(nGeomPoints,3);
+
+mean_matrix =zeros(nGeomPoints,nExperiments);
 
 for j = 1:nExperiments
 experiment = experiments{j};
-resultsPath_mis = [currentPath f 'results' f];
 resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 % outpath = [currentPath f 'results' f 'analysis' f experiment f];
 % outstruct_name = [experiment '_analysis.mat'];
 
-
 % load results data
 load([resultsPath_mis resultsfile]);
 
-% load geometry
-G = dlmread([resultsPath_mis 'geometry.txt']);
-[nGeomPoints,searchSpace_dim] = size(G);
-
 statistics_vector_feat1 = zeros(nGeomPoints,3);
-statistics_vector_feat2 = zeros(nGeomPoints,3);
 
-% dictionaries to swap between objective functions
-feature_ids = {1,2,3,4,5,6};
-feature_names = {'power','symmetry','skew','center','rmse','correlation'};
-feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
-select_feature = containers.Map(feature_ids,feature_names);
-select_feat_label = containers.Map(feature_ids,feature_labels);
 
-numFeatures = length(feature_ids);
-
-%select two different features
-feat1_id = 1;
-feat2_id= 4;
-
-% initialize best power to an empty vector (best geometry)
-best_feat1 = 100;
-best_feat1_id = 0;
-best_feat2 = 100;
-best_feat2_id = 0;
 
 for i=1:nGeomPoints
     current_geometry = data(i).geometry;
@@ -105,11 +105,7 @@ for i=1:nGeomPoints
     [nMisPoints,misalignment_dim] = size(M);
     
     P = R(:,end); % units [W/m]
-    mean_P = mean(P);
-    median_P = median(P);
-    std_P =  std(P);
-    
-    
+  
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
@@ -124,36 +120,29 @@ for i=1:nGeomPoints
     feat_median = median(features,1);
     feat_std = std(features,1);
    
- 
-    value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
-    if i==1
-        feat1_plot_vector = [features(:,feat1_id) value];
-        feat2_plot_vector = [features(:,feat2_id) value];
-    else
-        feat1_plot_vector = [feat1_plot_vector;features(:,feat1_id) value];
-        feat2_plot_vector = [feat2_plot_vector;features(:,feat2_id) value];
-    end
     feat1_stats = [feat_mean(feat1_id) feat_std(feat1_id) feat_median(feat1_id)];
     statistics_vector_feat1(i,:) = feat1_stats;
-    statistics_vector_feat2(i,:) = [feat_mean(feat2_id) feat_std(feat2_id) feat_median(feat2_id)];
-
+    if j==1
+        statistics_vector_ref(i,:) = feat1_stats;
+    end
+    
 end
+
+mean_matrix(:,j) = statistics_vector_feat1(:,1);
+
+%plot error bars
+% err = statistics_vector_feat1(:,2);
+% errorbar(x,f1,err,'+','DisplayName',legendname,'LineWidth',linewidth);
 
 hold on
 % subplot(2,1,1);
-x = 1:length(data);
+x = 1:nGeomPoints;
 f1 = statistics_vector_feat1(:,1);
+f2 = statistics_vector_ref(:,1);
 legendname = sprintf('%s points',experiment_label{j});
-%plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
-err = statistics_vector_feat1(:,2);
-errorbar(x,f1,err,'+','DisplayName',legendname,'LineWidth',linewidth);
-xlabel('geometry point number');
-ylabel(feature_labels(feat1_id));
-xlim([0 21])
-AX = legend('show','Location','northeastoutside');
-LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size,'LineWidth',linewidth);
-set(gca,'fontsize',font_size,'LineWidth',linewidth);
+rel_error = (f1-f2)./abs(f2);
+plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
+
 % hold on
 % subplot(2,1,2);
 % f2 = statistics_vector_feat2(:,1); % symmetry mean
@@ -170,9 +159,41 @@ set(gca,'fontsize',font_size,'LineWidth',linewidth);
 
 end
 
+xlabel('geometry point number');
+ylabel(feature_labels(feat1_id));
+xlim([0 6])
+AX = legend('show','Location','northeastoutside');
+LEG = findobj(AX,'type','text');
+set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 hold off
+
+fig2 = figure;
+% select figure size
+f_width = 1700;
+f_height= 500;
+%select line width of the plot lines
+linewidth = 2;
+font_size = 24;
+fig2.Position = [100, 100, f_width, f_height];
+
+max_vector= max(mean_matrix,[],2);
+min_vector = min(mean_matrix,[],2);
+
+max_error_vector =max_vector - min_vector;
+plot(x,max_error_vector,'LineWidth',linewidth);
+
+xlabel('geometry point number');
+ylabel(['max \Delta_{ij}' feature_names(feat1_id)]);
+AX = legend('show','Location','northeastoutside');
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
+legend('off');
+
 if print_pic == true
     % Save plot to vector image .eps
-    picname = ['num_points_comparison'];
+    picname = ['fix_points_comparison_' feature_names{feat1_id}];
     print(fig,picname,'-r300','-dpng')
+    picname2 = ['fix_points_error_' feature_names{feat1_id}];
+    print(fig2,picname2,'-r300','-dpng')
+end
 end

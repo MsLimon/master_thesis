@@ -62,9 +62,9 @@ f_height = 700;
 linewidth = 2;
 font_size = 24;
 % converge to this value
-plot(R(:,1),R(:,2)-P_accurate,'LineWidth',linewidth);
+plot(R(:,1),(R(:,2)-P_accurate)/P_accurate,'LineWidth',linewidth);
 xlabel('N');
-ylabel('Relative error / W m^{-1}');
+ylabel('Relative error');
 % Save plot to jpeg file
 
 fig = gcf;

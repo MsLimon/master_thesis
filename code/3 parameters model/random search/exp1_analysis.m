@@ -33,8 +33,8 @@ resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 outpath = [currentPath f 'results' f 'analysis' f experiment f];
 outstruct_name = [experiment '_analysis.mat'];
-print_pic_p = false;
-print_pic_s = false;
+print_pic_p = true;
+print_pic_s = true;
 print_pic_pareto = false;
 
 % load results data
@@ -55,13 +55,16 @@ best_feat2_id = 0;
 % dictionaries to swap between objective functions
 feature_ids = {1,2,3,4,5,6};
 feature_names = {'power','symmetry','skew','center','rmse','correlation'};
-feature_labels ={'-output power / W m^-^1','symmetry','skewness','-weighted power / W m^-^1','rmse / W m^-^1','-correlation'};
+%feature_labels ={'-output power / W m^-^1','symmetry','skewness','-weighted power / W m^-^1','rmse / W m^-^1','-correlation'};
+%feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse','-C'};
+feature_labels ={'-P','S','skewness','-P_{Gaussian}','rmse','-C'};
+
 select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
 feat1_id = 1;
-feat2_id= 4;
+feat2_id= 5;
 
 numFeatures = length(feature_ids);
 R_perfect = zeros(nGeomPoints,searchSpace_dim + numFeatures);
@@ -72,8 +75,7 @@ for i=1:nGeomPoints
     current_beta = current_geometry(1);  %unit: radians
     current_taperx = current_geometry(2); %unit: micrometers
     current_yin = current_geometry(3); %unit: meters
-    % extract the power results and calculate the mean and the average
-    R = data(i).results;
+    % extract misalignment data
     M = data(i).misalignment;
     % get dimesions of misalignment data
     [nMisPoints,misalignment_dim] = size(M);
@@ -83,7 +85,6 @@ for i=1:nGeomPoints
     median_P = median(P);
     std_P =  std(P);
     
-    
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
@@ -91,7 +92,7 @@ for i=1:nGeomPoints
     nMisPoints = m/2;
 
     features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
-    features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
+    
     % extract the data from the perfectly aligned case
     features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
     R_perfect(i,end+1-numFeatures:end) = features_perfect;
@@ -129,19 +130,17 @@ for i=1:nGeomPoints
 end
 
 numbers = {1,2,3};
-xlabelvalues = {'beta / rad','x taper / um','y_i_n / um'};
+parameter_names = {'beta','xtaper','yin'};
+xlabelvalues = {'beta / rad','x_{taper} / um','y_{in} / um'};
 selectlabel = containers.Map(numbers,xlabelvalues);
-
-% plot the results in power
-fig1 = figure;
 
 if print_pic_p == true
     % select figure size
     f_width = 1700;
     f_height= 1000;
     %select line width of the plot lines
-    linewidth = 1.15;
-    font_size = 16;
+    linewidth = 2;
+    font_size = 24;
 else
     % select figure size
     f_width = 700;
@@ -151,29 +150,35 @@ else
     font_size = 10;
 end
 
-fig1.Position = [0, 0, f_width, f_height];
-
 
 for i = 1:searchSpace_dim
-subplot(searchSpace_dim,1,i);
+    
+% create a plot figure
+fig1 = figure;
+
+fig1.Position = [0, 0, f_width, f_height];
+
+%subplot(searchSpace_dim,1,i);
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth);
+plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat1(:,2);
-errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth);
+% errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
+
 %plot the median
-ax = gca;
-ax.ColorOrderIndex = 1;
-plot(G(:,i),statistics_vector_feat1(:,end),'*','LineWidth',linewidth);
+ ax = gca;
+% ax.ColorOrderIndex = 1;
+% plot(G(:,i),statistics_vector_feat1(:,end),'*','LineWidth',linewidth);
 
 %plot the results without misalignment
-plot(G(:,i),R_perfect(:,searchSpace_dim+ feat1_id),'s')
+%plot(G(:,i),R_perfect(:,searchSpace_dim+ feat1_id),'s')
 
 %highlight the best power point
 ax.ColorOrderIndex = 7;
-plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth);
+plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*2,'MarkerSize', 14);
 
 % %highlight the best symmetry point
 % ax.ColorOrderIndex = 5;
@@ -181,23 +186,41 @@ plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat1_id));
-AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
+switch feat1_id
+    case 2
+    ylim([0 1]);
+    case 5
+    ylim([0 1]); 
+    otherwise
+    ylim([-1 0]);
+end
+%AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
+AX =legend('misalignment points','mean value','best point','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
+set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 hold off;
+
+if print_pic_p == true
+% Save plot to vector image .eps
+fig1.PaperPositionMode = 'auto';
+filename_Pplot = ['randomSearch_misalignment_' select_feature(feat1_id) '_' parameter_names{i}];
+print(fig1,'-dpng','-r300', [outpath filename_Pplot])
+print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
 
-% plot the results
-fig2 = figure;
+
+end
+
+
 
 if print_pic_s == true
     % select figure size
     f_width = 1700;
     f_height= 1000;
     %select line width of the plot lines
-    linewidth = 1.15;
-    font_size = 16;
+    linewidth = 2;
+    font_size = 24;
 else
     % select figure size
     f_width = 700;
@@ -207,57 +230,61 @@ else
     font_size = 10;
 end
 
-fig2.Position = [0, 0, f_width, f_height];
 for i = 1:searchSpace_dim
-subplot(searchSpace_dim,1,i);
+% plot the results
+fig2 = figure;
+
+fig2.Position = [0, 0, f_width, f_height];
+%subplot(searchSpace_dim,1,i);
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth);
+plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat2(:,2);
-errorbar(G(:,i),statistics_vector_feat2(:,1),err,'k+','LineWidth',linewidth);
+%errorbar(G(:,i),statistics_vector_feat2(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
 %plot the median
-ax = gca;
-ax.ColorOrderIndex = 1;
-plot(G(:,i),statistics_vector_feat2(:,end),'*','LineWidth',linewidth);
+ ax = gca;
+% ax.ColorOrderIndex = 1;
+% plot(G(:,i),statistics_vector_feat2(:,end),'*','LineWidth',linewidth);
 
 %plot the results without misalignment
-plot(G(:,i),R_perfect(:,searchSpace_dim+ feat2_id),'s')
+% plot(G(:,i),R_perfect(:,searchSpace_dim+ feat2_id),'s')
 
 %highlight the best symmetry point
 ax.ColorOrderIndex = 7;
-plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth);
+plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth*2,'MarkerSize', 14);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat2_id));
-AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
-LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
+switch feat2_id
+    case 2
+    ylim([0 1]);
+    case 5
+    ylim([0 1]); 
+    otherwise
+    ylim([-1 0]);
+end
+%AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
+AX =legend('misalignment points','mean value','best point','Location','northeastoutside');LEG = findobj(AX,'type','text');
+set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 hold off;
+
+if print_pic_s == true
+% Save plot to vector image .eps
+fig2.PaperPositionMode = 'auto';
+filename_Pplot2 = ['randomSearch_misalignment_' select_feature(feat2_id) '_' parameter_names{i}];
+savefile = [outpath filename_Pplot2];
+print(fig2,savefile,'-dpng','-r300')
+print(fig2,[outpath filename_Pplot2],'-depsc','-tiff','-r300')
+%close(hFig1);
 end
 
-% % plot the results in power
-% fig3 = figure;
-% 
-% if print_pic_pareto == true
-%     % select figure size
-%     f_width = 1700;
-%     f_height= 1000;
-%     %select line width of the plot lines
-%     linewidth = 1.5;
-%     font_size = 16;
-% else
-%     % select figure size
-%     f_width = 700;
-%     f_height = 400;
-%     %select line width of the plot lines
-%     linewidth = 1;
-%     font_size = 10;
-% end
-% 
-% fig3.Position = [0, 0, f_width, f_height];
+end
+
+
 
 x = statistics_vector_feat1(:,1); % power mean
 f = statistics_vector_feat2(:,1); % symmetry mean
@@ -270,7 +297,7 @@ x_min = min(x)+epsilon;
 step = -0.05;
 num_p = 20;
 std_lim = linspace(x_max,x_min,num_p);
-% TODO - automatically find the contraint boundaries (look for min of each
+% TODO - automatically find the constraint boundaries (look for min of each
 % function(mean and std) and get the corresponding std)
 [pareto_front,fig3] = pareto_plot(x,f,std_lim,'print','true');
 
@@ -279,22 +306,8 @@ xlabel([select_feature(feat1_id) ' mean']);
 ylabel([select_feature(feat2_id) ' mean']);
 set(gca,'fontsize',font_size);
 
-if print_pic_p == true
-% Save plot to vector image .eps
-fig1.PaperPositionMode = 'auto';
-filename_Pplot = ['randomSearch_misalignment_' select_feature(feat1_id)] ;
-print(fig1,'-dpng','-r300', [outpath filename_Pplot])
-print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
-end
-if print_pic_s == true
-% Save plot to vector image .eps
-fig2.PaperPositionMode = 'auto';
-filename_Pplot2 = ['randomSearch_misalignment_' select_feature(feat2_id)];
-savefile = [outpath filename_Pplot2];
-print(fig2,savefile,'-dpng','-r300')
-print(fig2,[outpath filename_Pplot2],'-depsc','-tiff','-r300')
-%close(hFig1);
-end
+
+
 if print_pic_pareto == true
 % Save plot to vector image .eps
 fig3.PaperPositionMode = 'auto';

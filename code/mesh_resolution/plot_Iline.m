@@ -65,6 +65,7 @@ font_size = 24;
 plot(R(:,1),(R(:,2)-P_accurate)/P_accurate,'LineWidth',linewidth);
 xlabel('N');
 ylabel('Relative error');
+xlim([1 8])
 % Save plot to jpeg file
 
 fig = gcf;

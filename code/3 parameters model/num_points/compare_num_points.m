@@ -38,6 +38,28 @@ experiment_label = {'120','90','60','30'};
 nExperiments = length(experiments);
 print_pic = true;
 
+
+% load geometry
+G = dlmread([resultsPath_mis 'geometry.txt']);
+[nGeomPoints,searchSpace_dim] = size(G);
+
+% dictionaries to swap between objective functions
+feature_ids = {1,2,3,4,5,6};
+feature_names = {'power','symmetry','skew','center','rmse','correlation'};
+%feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
+feature_labels ={[char(949) '_P'],[char(949) '_S'],'skewness',[char(949) '_{P_{Gaussian}}'],[char(949) '_{rmse}'],[char(949) '_{C}']};
+select_feature = containers.Map(feature_ids,feature_names);
+select_feat_label = containers.Map(feature_ids,feature_labels);
+
+numFeatures = length(feature_ids);
+max_error = zeros(nExperiments,numFeatures);
+for k=1:numFeatures
+if k==3
+    continue
+end
+%select two different features
+feat1_id = k;
+
 fig = figure;
 if print_pic == true
     % select figure size
@@ -55,23 +77,6 @@ else
     font_size = 10;
 end
 fig.Position = [100, 100, f_width, f_height];
-
-% load geometry
-G = dlmread([resultsPath_mis 'geometry.txt']);
-[nGeomPoints,searchSpace_dim] = size(G);
-
-% dictionaries to swap between objective functions
-feature_ids = {1,2,3,4,5,6};
-feature_names = {'power','symmetry','skew','center','rmse','correlation'};
-%feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
-feature_labels ={'\epsilon_P ','\epsilon_S','skewness','\epsilon_{P_{Gaussian}}','\epsilon_{rmse}','\epsilon_{C}'};
-select_feature = containers.Map(feature_ids,feature_names);
-select_feat_label = containers.Map(feature_ids,feature_labels);
-
-numFeatures = length(feature_ids);
-
-%select two different features
-feat1_id = 1;
 
 statistics_vector_ref = zeros(nGeomPoints,3);
 
@@ -92,14 +97,11 @@ for i=1:nGeomPoints
     current_beta = current_geometry(1);  %unit: radians
     current_taperx = current_geometry(2); %unit: micrometers
     current_yin = current_geometry(3); %unit: meters
-    % extract the power results and calculate the mean and the average
-    R = data(i).results;
+    % extract misalignment data
     M = data(i).misalignment;
     % get dimesions of misalignment data
     [nMisPoints,misalignment_dim] = size(M);
-    
-    P = R(:,end); % units [W/m]
-  
+
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
@@ -107,8 +109,7 @@ for i=1:nGeomPoints
     nMisPoints = m/2;
 
     features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
-    features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
-
+    
     features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
     feat_median = median(features,1);
@@ -135,7 +136,8 @@ f2 = statistics_vector_ref(:,1);
 legendname = sprintf('%s points',experiment_label{j});
 rel_error = (f1-f2)./abs(f2);
 plot(x,rel_error,'-','DisplayName',legendname,'LineWidth',linewidth);
-
+mError = max (abs(rel_error));
+max_error(j,k) = mError;
 % hold on
 % subplot(2,1,2);
 % f2 = statistics_vector_feat2(:,1); % symmetry mean
@@ -168,3 +170,8 @@ if print_pic == true
     picname = ['num_points_comparison_' feature_names{feat1_id}];
     print(fig,picname,'-r300','-dpng')
 end
+end
+max_error = max_error(:,[1 2 4 5 6]);
+max_error = max_error(2:end,:);
+max_error(:,[2,3])=max_error(:,[3,2]);
+dlmwrite('max_error.txt',max_error);

@@ -97,8 +97,8 @@ objective_type = p.Results.objective;
     % specify the upper bounds
     s_upperBound = 1; 
     s = feat_mean(1);
-    rmse_upperBound = 1;
-    rmse = feat_mean(4);
+    corr_upperBound = 0;
+    corr = feat_mean(5);
  
     switch objective_type
         case 'power'
@@ -124,13 +124,13 @@ objective_type = p.Results.objective;
         c_mean = feat_mean(3);
         objective = c_mean;
         s_upperBound = 0.20; 
-        rmse_upperBound = 0.3;
+        corr_upperBound = -0.70;
     end
 
     % set the constraint
     constraint_s = s - s_upperBound;
-    constraint_rmse = rmse - rmse_upperBound;
-    constraint = [constraint_s, constraint_rmse];
+    constraint_corr = corr - corr_upperBound;
+    constraint = [constraint_s, constraint_corr];
     
     % positive values of the contraint means that the constraint is not
     % satisfied.

@@ -37,7 +37,7 @@ i = 1; % reference is intensity line of perfectly line case
 
 % set min and max values to normalize rmse
 all_f = Iline_data(:,2:2:m);
-max_f = max(max(all_f));
+max_f = max(max(all_f))*1e-3;
 min_f = 0;
     
 switch reference_type

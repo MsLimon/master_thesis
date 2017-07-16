@@ -52,7 +52,10 @@ select_feat_label = containers.Map(feature_ids,feature_labels);
 
 numFeatures = length(feature_ids);
 
-for k=1:6
+for k=1:numFeatures
+if k==3
+    continue
+end
 fig = figure;
 if print_pic == true
     % select figure size
@@ -98,13 +101,10 @@ for i=1:nGeomPoints
     current_beta = current_geometry(1);  %unit: radians
     current_taperx = current_geometry(2); %unit: micrometers
     current_yin = current_geometry(3); %unit: meters
-    % extract the power results and calculate the mean and the average
-    R = data(i).results;
+    % extract misalignment data
     M = data(i).misalignment;
     % get dimesions of misalignment data
     [nMisPoints,misalignment_dim] = size(M);
-    
-    P = R(:,end); % units [W/m]
   
     % extract the Iline data
     Iline_data = data(i).Iline;
@@ -113,8 +113,7 @@ for i=1:nGeomPoints
     nMisPoints = m/2;
 
     features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
-    features = [-P features]; %(power,symmetry,skew,center,rmse,correlation)
-
+    
     features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
     feat_median = median(features,1);
@@ -139,7 +138,7 @@ hold on
 x = 1:nGeomPoints;
 f1 = statistics_vector_feat1(:,1);
 f2 = statistics_vector_ref(:,1);
-legendname = sprintf('%s points',experiment_label{j});
+legendname = sprintf('misalignment set %s',experiment_label{j});
 rel_error = (f1-f2)./abs(f2);
 plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
 
@@ -162,38 +161,54 @@ end
 xlabel('geometry point number');
 ylabel(feature_labels(feat1_id));
 xlim([0 6])
+switch k
+    case 2
+    ylim([0 1]);
+    case 5
+    ylim([0 1]); 
+    otherwise
+    ylim([-1 0]);
+end
 AX = legend('show','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size,'LineWidth',linewidth);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
 hold off
 
-fig2 = figure;
-% select figure size
-f_width = 1700;
-f_height= 500;
-%select line width of the plot lines
-linewidth = 2;
-font_size = 24;
-fig2.Position = [100, 100, f_width, f_height];
-
-max_vector= max(mean_matrix,[],2);
-min_vector = min(mean_matrix,[],2);
-
-max_error_vector =max_vector - min_vector;
-plot(x,max_error_vector,'LineWidth',linewidth);
-
-xlabel('geometry point number');
-ylabel(['max \Delta_{ij}' feature_names(feat1_id)]);
-AX = legend('show','Location','northeastoutside');
-set(gca,'fontsize',font_size,'LineWidth',linewidth);
-legend('off');
+% if k==1
+% fig2 = figure;
+% % select figure size
+% f_width = 1700;
+% f_height= 500;
+% %select line width of the plot lines
+% linewidth = 2;
+% font_size = 24;
+% fig2.Position = [100, 100, f_width, f_height];
+% end
+% 
+% max_vector= max(mean_matrix,[],2);
+% min_vector = min(mean_matrix,[],2);
+% 
+% max_error_vector =max_vector - min_vector;
+% hold on
+% 
+% legendname = sprintf('%s',feature_names{k});
+% plot(x,max_error_vector,'DisplayName',legendname,'LineWidth',linewidth);
+% 
+% xlabel('geometry point number');
+% %ylabel(['max \Delta_{ij}' feature_names(feat1_id)]);
+% ylabel('max \Delta_{ij}');
+% AX = legend('show','Location','northeastoutside');
+% LEG = findobj(AX,'type','text');
+% set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+% set(gca,'fontsize',font_size,'LineWidth',linewidth);
+%legend('off');
 
 if print_pic == true
     % Save plot to vector image .eps
     picname = ['fix_points_comparison_' feature_names{feat1_id}];
     print(fig,picname,'-r300','-dpng')
-    picname2 = ['fix_points_error_' feature_names{feat1_id}];
-    print(fig2,picname2,'-r300','-dpng')
+%     picname2 = ['fix_points_error_' feature_names{feat1_id}];
+%     print(fig2,picname2,'-r300','-dpng')
 end
 end

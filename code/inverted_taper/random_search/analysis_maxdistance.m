@@ -27,7 +27,7 @@ f = filesep;
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-experiment = 'exp1';
+experiment = 'exp9';
 resultsPath_mis = [currentPath f 'results' f experiment f];
 resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
@@ -94,9 +94,21 @@ end
 
 % get best geometries for all features (misalignment)
 [min_feat,min_feat_id] = min(features_allG,[],1);
-
 % get best geometries for all features (aligned)
 [min_feat_perfect,min_feat_id_perfect] = min(f_perfect,[],1);
+
+G_best = G([min_feat_id],:);
+% select only beta and yout
+G_best = G_best(:,[1 3]);
+% remove skewness
+G_best = G_best([1 2 4 5 6],:);
+G_best([2,3],:)=G_best([3,2],:);
+dlmwrite('G_best.txt',G_best);
+
+G_best_perfect = G([min_feat_id_perfect],:);
+G_best_perfect = G_best_perfect(:,[1 3]);
+G_best_perfect = G_best_perfect([1,4],:);
+dlmwrite('G_best_perfect.txt',G_best_perfect);
 
 max_delta = max(delta_allG,[],1);
 min_delta = min(delta_allG,[],1);

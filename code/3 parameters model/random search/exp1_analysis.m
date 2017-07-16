@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 13, 2017
+% Last Update: Juy 16, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
 
@@ -79,27 +79,22 @@ for i=1:nGeomPoints
     M = data(i).misalignment;
     % get dimesions of misalignment data
     [nMisPoints,misalignment_dim] = size(M);
-    
-    P = R(:,end); % units [W/m]
-    mean_P = mean(P);
-    median_P = median(P);
-    std_P =  std(P);
-    
+
     % extract the Iline data
     Iline_data = data(i).Iline;
     [n,m] = size(Iline_data);
     num_points = n;
     nMisPoints = m/2;
 
-    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
-    
-    % extract the data from the perfectly aligned case
-    features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
-    R_perfect(i,end+1-numFeatures:end) = features_perfect;
+    features = allFeatures(Iline_data); %(power, symmetry,skew,center,rmse,correlation)
     features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
     feat_median = median(features,1);
     feat_std = std(features,1);
+    
+    % extract the data from the perfectly aligned case
+    features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
+    R_perfect(i,end+1-numFeatures:end) = features_perfect;
       
    
      value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
@@ -157,7 +152,6 @@ for i = 1:searchSpace_dim
 fig1 = figure;
 
 fig1.Position = [0, 0, f_width, f_height];
-
 %subplot(searchSpace_dim,1,i);
 hold on;
 
@@ -167,7 +161,6 @@ plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(select
 err = statistics_vector_feat1(:,2);
 % errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
 plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
-
 %plot the median
  ax = gca;
 % ax.ColorOrderIndex = 1;
@@ -208,8 +201,6 @@ filename_Pplot = ['randomSearch_misalignment_' select_feature(feat1_id) '_' para
 print(fig1,'-dpng','-r300', [outpath filename_Pplot])
 print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
-
-
 end
 
 
@@ -284,8 +275,6 @@ end
 
 end
 
-
-
 x = statistics_vector_feat1(:,1); % power mean
 f = statistics_vector_feat2(:,1); % symmetry mean
 
@@ -306,8 +295,6 @@ xlabel([select_feature(feat1_id) ' mean']);
 ylabel([select_feature(feat2_id) ' mean']);
 set(gca,'fontsize',font_size);
 
-
-
 if print_pic_pareto == true
 % Save plot to vector image .eps
 fig3.PaperPositionMode = 'auto';
@@ -315,5 +302,3 @@ filename_Pplot = [experiment '_pareto_front_' select_feature(feat1_id) '_' selec
 print(fig3,'-dpng','-r300', [outpath filename_Pplot])
 print(fig3,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
-% %save the results of the experiment in a struct
-% save([outpath outstruct_name], 'analysis');

@@ -90,38 +90,37 @@ objective_type = p.Results.objective;
         end
     end
  
-    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
-    features(:,2) = abs(features(:,2)); % take the absolute value of skew
+    features = allFeatures(Iline_data); %(power,symmetry,skew,center,rmse,correlation)
+    features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
  
     % specify the upper bounds
     s_upperBound = 1; 
-    s = feat_mean(1);
+    s = feat_mean(2);
     corr_upperBound = 0;
-    corr = feat_mean(5);
+    corr = feat_mean(6);
  
     switch objective_type
         case 'power'
-        %objective is the mean light power
-        P_mean = mean(P);
-        objective = -P_mean;
+        P_mean = feat_mean(1);
+        objective = P_mean;
         case 'symmetry'
-        s_mean = feat_mean(1);
+        s_mean = feat_mean(2);
         objective = s_mean;
         case 'skew'
-        k_mean = feat_mean(2);
+        k_mean = feat_mean(3);
         objective = k_mean;
         case 'center'
-        c_mean = feat_mean(3);
+        c_mean = feat_mean(4);
         objective = c_mean;
         case 'rmse'
-        r_mean = feat_mean(4);
+        r_mean = feat_mean(5);
         objective = r_mean;
         case 'correlation'
-        corr_mean = feat_mean(5);
+        corr_mean = feat_mean(6);
         objective = corr_mean;
         case 'constrained'
-        c_mean = feat_mean(3);
+        c_mean = feat_mean(4);
         objective = c_mean;
         s_upperBound = 0.20; 
         corr_upperBound = -0.70;

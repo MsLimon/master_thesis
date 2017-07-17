@@ -1,18 +1,19 @@
-function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin)
+function [objective, constraint] = invertedtaper(beta,taperx,yout,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 24, 2017
+% Last Update: July 09, 2017
 %
 % Solve comsol model for a set of geometrical parameters and a number of
 % misaligment points
 % Input: 
 % - geometrical parameters (beta,taperx,yout)
-% - matrix M with misaligment points with row vector (x_mis, y_mis, alpha)
-% Options:
-% -objective: choose the objective function
+%
 % Output: 
-% - P is the average of the integral of the light intentsity at the
-% output facet
+% - P is the integral of the light intentsity at the
+% output face
+% - modelpath is the path where the comsol model is stored
+% - intensityfile is the filename of the intensity line plot. Intesity line
+% - nMisPoints is the number of misalignment points 
 
     p = inputParser;
 
@@ -22,10 +23,9 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
     addParameter(p,'objective',defaultObjective,checkObjective);
 
     parse(p,varargin{:});
-
+    
     objective_type = p.Results.objective; 
-
-
+    
     import com.comsol.model.*
     import com.comsol.model.util.*
 
@@ -33,11 +33,11 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
         % set the name of the input model file
         modelpath = '';
         outpath = '/home/fr/fr_fr/fr_mt155/Iline/';
-        infile = 'inverted_taper_sweep_655.mph';
+        infile = 'inverted_taper_655.mph';
     else
         modelpath = '../';
         outpath = 'C:\Users\IMTEK\Documents\GitHub\master_thesis\code\inverted_taper\random_search\results\';
-        infile = 'inverted_taper_sweep.mph'; 
+        infile = 'inverted_taper.mph'; 
         ModelUtil.showProgress(true);
     end
     % load the model
@@ -49,47 +49,21 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
     model.param.set('beta', [num2str(beta),'[rad]'], 'Angle of later facet');
     model.param.set('taper_x', [num2str(taperx),'[um]'], 'Length of the taper in propagation direction');
     model.param.set('y_out', [num2str(yout),'[um]'], 'Taper height on the output facet');
-    % pass misalignment parameters to the COMSOL model as a parametric sweep
-    model.study('std1').feature('param').set('plistarr', {sprintf('%f ' ,...
-        M(:,1)),sprintf('%f ' , M(:,2)),sprintf('%f ' , M(:,3))});
-    model.study('std1').feature('param').set('pname', {'x_mis' 'y_mis' 'alpha'});
-    model.study('std1').feature('param').set('punit', {'um' 'um' 'deg'});
 
-    % create line plot
-    model.result.export('plot1').set('filename', [outpath intfile]);
-    model.batch('p1').feature('ex1').set('paramfilename', 'index');
-    model.batch('p1').feature('ex1').set('seq', 'plot1');
-    model.batch('p1').feature('ex1').set('openfile', 'none');
-    model.batch('p1').feature('ex1').run();
-    
     % solve the model
     model.study('std1').run;
     % extract the accumulated probe table
-    tabl = mphtable(model,'tbl1');
+    tabl = mphtable(model,'tbl2');
     % extract the power from the accumulated probe table
-    P = tabl.data(:,end); % units: W/m
-    
-    % retrieve the Iline data and store in in the matrix Iline_data
-    flst = dir([outpath '*.dat']);
-    [nMisPoints,misalignment_dim] = size(M);
-    for i=1:nMisPoints
-        filename = flst(i).name;
-        path = flst(i).folder;
-        if isunix == 1
-            % load the data extracted from the model
-            Iline = load([path '/' filename]);
-        else
-            Iline = load([path '\' filename]);
-        end
-        [n,m] = size(Iline);
-        if i == 1
-            Iline_data = zeros(n,m*nMisPoints);
-            Iline_data(:,(m*i)-1:m*i) = Iline;
-        else
-            Iline_data(:,(m*i)-1:m*i) = Iline;
-        end
-    end
- 
+    P = tabl.data(end); % units: W/m
+    % export intensity line
+    model.result().export('plot1').set('plotgroup', 'pg5');
+    model.result().export('plot1').set('plot', 'lngr1');
+    model.result().export('plot1').set('filename',intfile);
+    model.result().export('plot1').run();
+    % load the data extracted from the model
+    Iline_data = load([modelpath intfile]);
+    % calculate features
     features = allFeatures(Iline_data); %(power,symmetry,skew,center,rmse,correlation)
     features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
@@ -97,9 +71,9 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
     % specify the upper bounds
     s_upperBound = 1; 
     s = feat_mean(2);
-    corr_upperBound = 0;
-    corr = feat_mean(6);
- 
+    rmse_upperBound = 1;
+    rmse = feat_mean(5);
+    
     switch objective_type
         case 'power'
         P_mean = feat_mean(1);
@@ -118,24 +92,25 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
         objective = r_mean;
         case 'correlation'
         corr_mean = feat_mean(6);
-        objective = corr_mean; 
+        objective = corr_mean;
         case 'constrained'
         c_mean = feat_mean(4);
         objective = c_mean;
-        s_upperBound = 0.15; 
-        corr_upperBound = -0.65;
+        s_upperBound = 0.20; 
+        rmse_upperBound = 0.3;
     end
-    
+
     % set the constraint
     constraint_s = s - s_upperBound;
-    constraint_corr = corr - corr_upperBound;
-    constraint = [constraint_s, constraint_corr];
+    constraint_rmse = rmse - rmse_upperBound;
+    constraint = [constraint_s, constraint_rmse];
     
     % positive values of the contraint means that the constraint is not
-    % satisfied.
+    % satisfied.    
+
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    
-       
+
 end 
     

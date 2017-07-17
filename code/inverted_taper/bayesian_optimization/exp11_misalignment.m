@@ -3,7 +3,7 @@
 % Last Update: June 24, 2017
 
 % Bayesian optimization on geometrical space with misalignment. Parameter space
-% is (beta, y_in)
+% is (beta, y_out)
 
 % Important script parameters:
 % - maxTime : specify walltime for the termination condition of the optimizer 
@@ -68,10 +68,11 @@ try
     % start logfile
     ModelUtil.showProgress(logfile);
     % create a handle for the objective function
-    fun = @(x)inverted_mis_bayes(x.beta,taperx,x.yout,M,'objective','power');
+    fun = @(x)inverted_mis_bayes(x.beta,taperx,x.yout,M,'objective','constrained');
     % call bayesian optimization and store the results
     results = bayesopt(fun,[beta,yout],'Verbose',1,...
         'IsObjectiveDeterministic',true,...
+        'NumCoupledConstraints',2,...
         'MaxObjectiveEvaluations',100,...
         'MaxTime',maxTime,... % set walltime
         'PlotFcn',[],...

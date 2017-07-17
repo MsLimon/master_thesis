@@ -1,4 +1,4 @@
-function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
+function [objective, constraint] = simplemodel_mis(beta,taperx,yin,M,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
 % Last Update: May 15, 2017
@@ -17,7 +17,7 @@ function [objective] = simplemodel_mis(beta,taperx,yin,M,varargin)
 p = inputParser;
 
 defaultObjective = 'power';
-validObjective = {'power','symmetry','skew','center','rmse','correlation'};
+validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained'};
 checkObjective = @(x)any(validatestring(x,validObjective));
 addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -90,32 +90,50 @@ objective_type = p.Results.objective;
         end
     end
  
- features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
- features(:,2) = abs(features(:,2)); % take the absolute value of skew
- feat_mean = mean(features,1);
+    features = allFeatures(Iline_data); %(power,symmetry,skew,center,rmse,correlation)
+    features(:,3) = abs(features(:,3)); % take the absolute value of skew
+    feat_mean = mean(features,1);
+ 
+    % specify the upper bounds
+    s_upperBound = 1; 
+    s = feat_mean(2);
+    corr_upperBound = 0;
+    corr = feat_mean(6);
  
     switch objective_type
         case 'power'
-        %objective is the mean light power
-        P_mean = mean(P);
-        objective = -P_mean;
+        P_mean = feat_mean(1);
+        objective = P_mean;
         case 'symmetry'
-        s_mean = feat_mean(1);
+        s_mean = feat_mean(2);
         objective = s_mean;
         case 'skew'
-        k_mean = feat_mean(2);
+        k_mean = feat_mean(3);
         objective = k_mean;
         case 'center'
-        c_mean = feat_mean(3);
+        c_mean = feat_mean(4);
         objective = c_mean;
         case 'rmse'
-        r_mean = feat_mean(4);
+        r_mean = feat_mean(5);
         objective = r_mean;
         case 'correlation'
-        corr_mean = feat_mean(5);
+        corr_mean = feat_mean(6);
         objective = corr_mean;
+        case 'constrained'
+        c_mean = feat_mean(4);
+        objective = c_mean;
+        s_upperBound = 0.20; 
+        corr_upperBound = -0.70;
     end
 
+    % set the constraint
+    constraint_s = s - s_upperBound;
+    constraint_corr = corr - corr_upperBound;
+    constraint = [constraint_s, constraint_corr];
+    
+    % positive values of the contraint means that the constraint is not
+    % satisfied.
+    
     % remove the model
     ModelUtil.remove('model');
     ModelUtil.clear;    

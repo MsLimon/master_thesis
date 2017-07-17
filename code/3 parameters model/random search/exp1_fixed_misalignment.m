@@ -1,6 +1,6 @@
 Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: June 25, 2017
+% Last Update: July 03, 2017
 % 
 % Study stability of misalignment points. Parameter space
 % is (beta, taper_x, y_in)
@@ -69,7 +69,7 @@ try
         [nGeomPoints,searchSpace_dim] = size(G);
     else
         % number of geomtrical parameter sets (number of random points)
-        nGeomPoints = 2;
+        nGeomPoints = 5;
         G = generateGeom(nGeomPoints,'model','simple');
         [nGeomPoints,searchSpace_dim] = size(G);
         % save the generated geometry

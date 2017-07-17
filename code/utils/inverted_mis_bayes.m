@@ -122,8 +122,8 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
         case 'constrained'
         c_mean = feat_mean(4);
         objective = c_mean;
-        s_upperBound = 0.15; 
-        corr_upperBound = -0.65;
+        s_upperBound = 0.30; 
+        corr_upperBound = -0.825;
     end
     
     % set the constraint

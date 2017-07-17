@@ -122,8 +122,8 @@ objective_type = p.Results.objective;
         case 'constrained'
         c_mean = feat_mean(4);
         objective = c_mean;
-        s_upperBound = 0.20; 
-        corr_upperBound = -0.70;
+        s_upperBound = 0.15; 
+        corr_upperBound = -0.85;
     end
 
     % set the constraint

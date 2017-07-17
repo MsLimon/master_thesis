@@ -67,7 +67,7 @@ plot(x1,f1);
 hold on
 plot(x2,f2);
 hold off
-xlabel('Arc length / um');
+xlabel('Output facet length / um');
 ylabel('I / mW mm^-^2');
 
 

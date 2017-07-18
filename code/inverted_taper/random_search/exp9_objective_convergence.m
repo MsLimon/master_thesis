@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: July 16, 2017
+% Last Update: Junly 18, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
 
@@ -27,12 +27,16 @@ f = filesep;
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-experiment = 'exp1';
+experiment = 'exp9';
 resultsPath_mis = [currentPath f 'results' f experiment f];
 resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 outpath = [currentPath f 'results' f 'analysis' f experiment f];
 outstruct_name = [experiment '_analysis.mat'];
+print_pic_p = false;
+print_pic_s = false;
+print_pic_pareto = false;
+print_pic_surface = true;
 
 % load results data
 load([resultsPath_mis resultsfile]);
@@ -53,24 +57,32 @@ best_feat2_id = 0;
 feature_ids = {1,2,3,4,5,6};
 feature_names = {'power','symmetry','skew','center','rmse','correlation'};
 %feature_labels ={'-output power / W m^-^1','symmetry','skewness','-weighted power / W m^-^1','rmse / W m^-^1','-correlation'};
-%feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse','-C'};
 feature_labels ={'-P','S','skewness','-P_{Gaussian}','rmse','-C'};
-
 select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
+%select two different features
+feat1_id = 2;
+
 numFeatures = length(feature_ids);
-% preallocation of matrices
+R_perfect = zeros(nGeomPoints,searchSpace_dim + numFeatures);
+R_perfect(:,1:end-numFeatures) = G; 
+
+% gather all objectives in one matrix
 features_allG = zeros(nGeomPoints,numFeatures);
-delta_allG = zeros(nGeomPoints,numFeatures);
-f_perfect = zeros(nGeomPoints,numFeatures);
+
+best_objective_trace = zeros(1,nGeomPoints);
+min_objective_trace = zeros(1,nGeomPoints);
 
 for i=1:nGeomPoints
+    current_geometry = data(i).geometry;
+    current_beta = current_geometry(1);  %unit: radians
+    current_taperx = current_geometry(2); %unit: micrometers
+    current_yout = current_geometry(3); %unit: meters
     % extract misalignment data
     M = data(i).misalignment;
     % get dimesions of misalignment data
     [nMisPoints,misalignment_dim] = size(M);
-
     
     % extract the Iline data
     Iline_data = data(i).Iline;
@@ -78,68 +90,50 @@ for i=1:nGeomPoints
     num_points = n;
     nMisPoints = m/2;
 
-    features = allFeatures(Iline_data); %(symmetry,skew,center,rmse,correlation)
+    features = allFeatures(Iline_data); %(power, symmetry,skew,center,rmse,correlation)
+    features(:,3) = abs(features(:,3)); % take the absolute value of skew
     feat_mean = mean(features,1);
-    features_allG(i,:) = feat_mean;
+    feat_median = median(features,1);
+    feat_std = std(features,1);
+    features_allG(i,:) = feat_mean;  
+   
+    feat1_stats = [feat_mean(feat1_id) feat_std(feat1_id) feat_median(feat1_id)];
+    statistics_vector_feat1(i,:) = feat1_stats;
     
-    % extract the data from the perfectly aligned case
-    features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
-    f_perfect(i,:) = features_perfect;
-    
-    max_features = max(features,[],1);
-    min_features = min(features,[],1);
-    delta_allG(i,:) = abs(max_features-min_features);
-    
+    objective_1 = feat_mean(feat1_id);
+    if objective_1 < best_feat1
+        best_feat1 = objective_1;
+        best_candidate_feat1 = current_geometry;
+        best_feat1_id = i;
+    end 
+best_objective_trace(i)=best_feat1_id;
+min_objective_trace(i)= best_feat1;
 end
 
-% get best geometries for all features (misalignment)
-[min_feat,min_feat_id] = min(features_allG,[],1);
-% get best geometries for all features (aligned)
-[min_feat_perfect,min_feat_id_perfect] = min(f_perfect,[],1);
+% select figure size
+f_width = 1700;
+f_height= 1000;
+%select line width of the plot lines
+linewidth = 2;
+font_size = 24;
 
-G_best = G([min_feat_id],:);
-G_best = [G_best, min_feat'];
+% create a plot figure
+fig1 = figure;
 
-best_allfeat =[features_allG(min_feat_id,:)];
-best_allfeat = best_allfeat([1 2 4 5 6],:);
-best_allfeat([2,3],:)=best_allfeat([3,2],:);
-best_allfeat = best_allfeat(:,[1 2 4 5 6]);
-best_allfeat(:,[2,3])=best_allfeat(:,[3,2]);
-% remove skewness
-G_best = G_best([1 2 4 5 6],:);
-G_best([2,3],:)=G_best([3,2],:);
-G_best_compare = [G_best(:,1:end-1), best_allfeat];
-dlmwrite('G_best.txt',G_best);
-dlmwrite('G_best_compare.txt',G_best_compare);
+fig1.Position = [0, 0, f_width, f_height]; 
+x = 1:nGeomPoints;
+plot(x,min_objective_trace,'LineWidth',linewidth)
 
-G_best_perfect = G([min_feat_id_perfect],:);
-G_best_perfect = [G_best_perfect, min_feat_perfect'];
-G_best_perfect = G_best_perfect([1,4],:);
-dlmwrite('G_best_perfect.txt',G_best_perfect);
+xlabel('Function evaluation');
+ylabel(feature_labels(feat1_id));
+ylim([0 0.4])
+% switch feat1_id
+%     case 2
+%     ylim([0 1]);
+%     case 5
+%     ylim([0 1]); 
+%     otherwise
+%     ylim([-1 0]);
+% end
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 
-max_delta = max(delta_allG,[],1);
-min_delta = min(delta_allG,[],1);
-mean_delta = mean(delta_allG,1);
-
-delta_matrix =[max_delta;min_delta;mean_delta];
-delta_matrix = delta_matrix(:,[1 2 4 5 6]);
-delta_matrix(:,[2,3])=delta_matrix(:,[3,2]);
-dlmwrite('Delta_matrix.txt',delta_matrix);
-
- best_delta = [zeros(1,numFeatures);zeros(1,numFeatures)];
- for l =1:numFeatures
-    best_id = min_feat_id(l);
-    if l ==1
-        best_id_perfect = min_feat_id_perfect(l);
-        best_delta(2,l) = delta_allG(best_id_perfect,l);
-    end
-    if l ==4
-        best_id_perfect = min_feat_id_perfect(l);
-        best_delta(2,l) = delta_allG(best_id_perfect,l);
-    end
-    best_delta(1,l) = delta_allG(best_id,l);
- end
-
-best_delta = best_delta(:,[1 2 4 5 6]);
-best_delta(:,[2,3])=best_delta(:,[3,2]);
-dlmwrite('best_delta.txt',best_delta);

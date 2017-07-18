@@ -36,9 +36,10 @@ numFeatures = length(feature_ids);
 
 % preallocation of matrices
 % change to 2 for inverse taper model
-G_best = zeros(numFeatures,3);
+G_best = zeros(numFeatures,3+1);
 best_delta = zeros(1,numFeatures);
 delta_matrix = zeros(3,numFeatures);
+best_allfeat = zeros(numFeatures,numFeatures);
 
 for k = 1:6
 %select tthe feature
@@ -125,11 +126,12 @@ for i=1:nGeomPoints
         best_feat1 = objective_1;
         best_candidate_feat1 = current_geometry;
         best_feat1_id = i;
+        best_allfeat(k,:) = feat_mean;
     end 
 end
 
 
-G_best(k,:) = G(best_feat1_id,:);
+G_best(k,:) = [G(best_feat1_id,:), best_feat1];
 % % select only beta and yout
 %G_best = G_best(:,[1 3]);
 
@@ -140,12 +142,18 @@ mean_delta = mean(delta_allG);
 delta_matrix(:,k) = [max_delta;min_delta;mean_delta];
 
 best_delta(k) = delta_allG(best_feat1_id);
- end
- 
+end
+
+best_allfeat = best_allfeat([1 2 4 5 6],:);
+best_allfeat([2,3],:)=best_allfeat([3,2],:);
+best_allfeat = best_allfeat(:,[1 2 4 5 6]);
+best_allfeat(:,[2,3])=best_allfeat(:,[3,2]);
 % remove skewness
 G_best = G_best([1 2 4 5 6],:);
 G_best([2,3],:)=G_best([3,2],:);
+G_best_compare = [G_best(:,1:end-1), best_allfeat];
 dlmwrite('G_best.txt',G_best);
+dlmwrite('G_best_compare.txt',G_best_compare);
 
 
 delta_matrix = delta_matrix(:,[1 2 4 5 6]);

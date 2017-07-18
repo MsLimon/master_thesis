@@ -98,15 +98,27 @@ end
 [min_feat_perfect,min_feat_id_perfect] = min(f_perfect,[],1);
 
 G_best = G([min_feat_id],:);
+G_best = [G_best, min_feat'];
+% compare features
+best_allfeat =[features_allG(min_feat_id,:)];
+best_allfeat = best_allfeat([1 2 4 5 6],:);
+best_allfeat([2,3],:)=best_allfeat([3,2],:);
+best_allfeat = best_allfeat(:,[1 2 4 5 6]);
+best_allfeat(:,[2,3])=best_allfeat(:,[3,2]);
+
 % select only beta and yout
-G_best = G_best(:,[1 3]);
+G_best = G_best(:,[1 3 4]);
 % remove skewness
 G_best = G_best([1 2 4 5 6],:);
 G_best([2,3],:)=G_best([3,2],:);
+G_best_compare = [G_best(:,1:end-1), best_allfeat];
 dlmwrite('G_best.txt',G_best);
+dlmwrite('G_best_compare.txt',G_best_compare);
 
 G_best_perfect = G([min_feat_id_perfect],:);
-G_best_perfect = G_best_perfect(:,[1 3]);
+G_best_perfect = [G_best_perfect, min_feat_perfect'];
+% select only beta and yout
+G_best_perfect = G_best_perfect(:,[1 3 4]);
 G_best_perfect = G_best_perfect([1,4],:);
 dlmwrite('G_best_perfect.txt',G_best_perfect);
 

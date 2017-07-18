@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: Juy 16, 2017
+% Last Update: July 16, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
 
@@ -32,6 +32,15 @@ feature_labels ={'-P','S','skewness','-P_{Gaussian}','rmse','-C'};
 select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
+numFeatures = length(feature_ids);
+
+% preallocation of matrices
+% change to 2 for inverse taper model
+G_best = zeros(numFeatures,2+1);
+best_delta = zeros(1,numFeatures);
+delta_matrix = zeros(3,numFeatures);
+best_allfeat = zeros(numFeatures,numFeatures);
+
 for k = 1:6
 %select tthe feature
 feat_id = k;
@@ -44,7 +53,7 @@ f = filesep;
 
 % specify results path, output path and file names for the output data
 currentPath = pwd;
-experiment = 'exp3';
+experiment = 'exp11';
 resultsPath_mis = [currentPath f 'results' f experiment f 'objective_' select_feature(feat_id) f];
 misalignmentPath = [currentPath f 'results' f experiment f];
 bayesresfile = 'BayesoptResults.mat';
@@ -69,7 +78,8 @@ M = dlmread([misalignmentPath 'misalignment_points.txt']);
 % get dimesions of misalignment data
 [nMisPoints,misalignment_dim] = size(M);
 
-numFeatures = length(feature_ids);
+features_allG = zeros(nGeomPoints,numFeatures);
+delta_allG = zeros(1,nGeomPoints);
 
 statistics_vector_feat1 = zeros(nGeomPoints,3);
 % initialize best power to an empty vector (best geometry)
@@ -80,7 +90,6 @@ for i=1:nGeomPoints
     current_geometry = G(i,:);
     current_beta = current_geometry(1);  %unit: radians
     current_taperx = current_geometry(2); %unit: micrometers
-    current_yin = current_geometry(3); %unit: meters
 
     % extract the Iline data
     Iline_data = data(i).Iline;
@@ -93,16 +102,12 @@ for i=1:nGeomPoints
     feat_mean = mean(features,1);
     feat_median = median(features,1);
     feat_std = std(features,1);
+    feat = features(:,k);
     
-    % extract the data from the perfectly aligned case
-    features_perfect = features(1,:); %(power,symmetry,skew,center,rmse,correlation)
-   
-     value = repmat([current_beta current_taperx current_yin],nMisPoints,1);
-    if i==1
-        feat1_plot_vector = [features(:,feat_id) value];
-    else
-        feat1_plot_vector = [feat1_plot_vector;features(:,feat_id) value];
-    end
+    max_feat = max(feat,[],1);
+    min_feat = min(feat,[],1);
+    delta_allG(i) = abs(max_feat-min_feat);
+    
     feat1_stats = [feat_mean(feat_id) feat_std(feat_id) feat_median(feat_id)];
     statistics_vector_feat1(i,:) = feat1_stats;
     
@@ -111,85 +116,38 @@ for i=1:nGeomPoints
         best_feat1 = objective_1;
         best_candidate_feat1 = current_geometry;
         best_feat1_id = i;
+        best_allfeat(k,:) = feat_mean;
     end 
 end
 
-numbers = {1,2,3};
-parameter_names = {'beta','xtaper','yin'};
-xlabelvalues = {'beta / rad','x_{taper} / um','y_{in} / um'};
-selectlabel = containers.Map(numbers,xlabelvalues);
 
-if print_pic_p == true
-    % select figure size
-    f_width = 1700;
-    f_height= 1000;
-    %select line width of the plot lines
-    linewidth = 2;
-    font_size = 24;
-else
-    % select figure size
-    f_width = 700;
-    f_height = 400;
-    %select line width of the plot lines
-    linewidth = 1;
-    font_size = 10;
+G_best(k,:) = [G(best_feat1_id,:), best_feat1];
+
+max_delta = max(delta_allG);
+min_delta = min(delta_allG);
+mean_delta = mean(delta_allG);
+
+delta_matrix(:,k) = [max_delta;min_delta;mean_delta];
+
+best_delta(k) = delta_allG(best_feat1_id);
 end
 
+best_allfeat = best_allfeat([1 2 4 5 6],:);
+best_allfeat([2,3],:)=best_allfeat([3,2],:);
+best_allfeat = best_allfeat(:,[1 2 4 5 6]);
+best_allfeat(:,[2,3])=best_allfeat(:,[3,2]);
+% remove skewness
+G_best = G_best([1 2 4 5 6],:);
+G_best([2,3],:)=G_best([3,2],:);
+G_best_compare = [G_best(:,1:end-1), best_allfeat];
+dlmwrite('G_best.txt',G_best);
+dlmwrite('G_best_compare.txt',G_best_compare);
 
-for i = 1:searchSpace_dim
-    
-% create a plot figure
-fig1 = figure;
+delta_matrix = delta_matrix(:,[1 2 4 5 6]);
+delta_matrix(:,[2,3])=delta_matrix(:,[3,2]);
+dlmwrite('Delta_matrix.txt',delta_matrix);
 
-fig1.Position = [0, 0, f_width, f_height];
-%subplot(searchSpace_dim,1,i);
-hold on;
+best_delta = best_delta(:,[1 2 4 5 6]);
+best_delta(:,[2,3])=best_delta(:,[3,2]);
+dlmwrite('best_delta.txt',best_delta);
 
-%plot the results for the experiment with misalignemnt
-plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 14);
-% plot mean and std as error bar (experiment with misalignment)
-err = statistics_vector_feat1(:,2);
-% errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
-plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 14);
-%plot the median
- ax = gca;
-% ax.ColorOrderIndex = 1;
-% plot(G(:,i),statistics_vector_feat1(:,end),'*','LineWidth',linewidth);
-
-%plot the results without misalignment
-%plot(G(:,i),R_perfect(:,searchSpace_dim+ feat1_id),'s')
-
-%highlight the best power point
-ax.ColorOrderIndex = 7;
-plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*4,'MarkerSize', 16);
-
-% %highlight the best symmetry point
-% ax.ColorOrderIndex = 5;
-% plot(G(best_symmetry_id,i),best_power,'v','LineWidth',linewidth);
-
-xlabel(selectlabel(i));
-ylabel(feature_labels(feat_id));
-switch feat_id
-    case 2
-    ylim([0 1]);
-    case 5
-    ylim([0 1]); 
-    otherwise
-    ylim([-1 0]);
-end
-%AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
-AX =legend('misalignment points','objective value','best point','Location','northeastoutside');
-LEG = findobj(AX,'type','text');
-set(LEG,'FontSize',font_size,'LineWidth',linewidth);
-set(gca,'fontsize',font_size,'LineWidth',linewidth);
-hold off;
-
-if print_pic_p == true
-% Save plot to vector image .eps
-fig1.PaperPositionMode = 'auto';
-filename_Pplot = ['randomSearch_misalignment_' select_feature(feat_id) '_' parameter_names{i}];
-print(fig1,'-dpng','-r300', [outpath filename_Pplot])
-print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
-end
-end
-end

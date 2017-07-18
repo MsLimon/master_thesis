@@ -1,7 +1,7 @@
 function [objective, constraint] = simplemodel_mis(beta,taperx,yin,M,varargin)
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: May 15, 2017
+% Last Update: July 18, 2017
 %
 % Solve comsol model for a set of geometrical parameters and a number of
 % misaligment points
@@ -17,7 +17,7 @@ function [objective, constraint] = simplemodel_mis(beta,taperx,yin,M,varargin)
 p = inputParser;
 
 defaultObjective = 'power';
-validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained'};
+validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained','weighted'};
 checkObjective = @(x)any(validatestring(x,validObjective));
 addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -123,7 +123,15 @@ objective_type = p.Results.objective;
         c_mean = feat_mean(4);
         objective = c_mean;
         s_upperBound = 0.15; 
-        corr_upperBound = -0.85;
+        corr_upperBound = -0.65;
+        case 'weighted'
+        % change all to interval [0,1]
+        c_mean = feat_mean(4)+ 1;
+        s_mean = feat_mean(2);
+        corr_mean = feat_mean(6)+1;
+        objective = 0.25*c_mean+0.25*s_mean+0.5* corr_mean;
+        %they should be in the same interval![0,1] you cannot use them like
+        %this
     end
 
     % set the constraint

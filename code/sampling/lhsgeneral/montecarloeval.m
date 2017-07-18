@@ -51,12 +51,12 @@ actual_std = zeros(1,l);                                                    % pr
 for i=1:l
     prob=x(:,i);
     samples(:,i) = icdf(pd{i},prob);                                        % map random samples to values using inverse cumulative distribution functions
-    predefined_mean(:,i) = mean(pd{i});
-    predefined_std(:,i) = std(pd{i});
+    predefined_mean(:,i) = pd{1,i}.mu;                                     % Calculate standard deviation and mean of the distribution 
+    predefined_std(:,i) = pd{1,i}.sigma;
     actual_mean(:,i) = mean(samples(:,i));
     actual_std(:,i) = std(samples(:,i));
 end
 
-meanError = abs(predefined_mean - actual_mean)./predefined_mean;
+meanError = actual_mean;
 stdError = abs(predefined_std - actual_std)./predefined_std;        
 end

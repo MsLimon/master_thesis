@@ -17,15 +17,15 @@ setcolor = containers.Map(color_names,rgb_values);
     % distribution corresponding to the misalignment on x
     pd{1} = makedist('normal','mu',0,'sigma',1.5);
     % truncate x distribution (alignment structures only allow the laser to move backwards)
-    pd{1} = truncate(pd{1},0,5);
+    %pd{1} = truncate(pd{1},0,5);
     % distribution corresponding to the misalignment on y
     pd{2} = makedist('normal','mu',0,'sigma',3);
     % truncate y distribution (we have symmetry about the x axis)
-    pd{2} = truncate(pd{2},0,9);
+    %pd{2} = truncate(pd{2},0,12);
     % distribution corresponding to the misalignment on alpha
     pd{3} = makedist('normal','mu',0,'sigma',1);
     % truncate alpha distribution (don't allow values greater than alpha)
-    pd{3} = truncate(pd{3},-3,3);
+    %pd{3} = truncate(pd{3},-3,3);
 
 l=length(pd);
 % select number of samples
@@ -50,25 +50,36 @@ for n = num_samples
     i = i+1;
     %end
 end
-
+% select figure size
+f_width = 1200;
+f_height= 1300;
+%select line width of the plot lines
+linewidth = 2;
+font_size = 24;
 %plot mean deviation
-figure
+% create a plot figure
+fig1 = figure;
+
+fig1.Position = [0, 0, f_width, f_height];
+%plot mean deviation
 subplot(2,1,1);
 hold on;
-plot(E_latinHypercube(:,1),E_latinHypercube(:,2),'o','Color',setcolor('purple'));
-plot(E_monteCarlo(:,1),E_monteCarlo(:,2),'v','Color',setcolor('orange'));
-legend('mean error - LHS','mean error - MCS');
+plot(E_latinHypercube(:,1),E_latinHypercube(:,2),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
+plot(E_monteCarlo(:,1),E_monteCarlo(:,2),'v','Color',setcolor('orange'),'LineWidth',linewidth,'MarkerSize', 14);
+legend('latin hypercube','random','Location','northeastoutside');
 xlabel('Number of samples'); % x-axis label
-ylabel('Mean relative error'); % y-axis label
+ylabel('\mu / \mu m'); % y-axis label
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 %title('Relative error of the mean of the samples')
 hold off;
 subplot(2,1,2);
 hold on;
-plot(E_latinHypercube(:,1),E_latinHypercube(:,4),'o','Color',setcolor('purple'));
-plot(E_monteCarlo(:,1),E_monteCarlo(:,4),'v','Color',setcolor('orange'));
-legend('std error - LHS','std error - MCS');
+plot(E_latinHypercube(:,1),E_latinHypercube(:,4),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
+plot(E_monteCarlo(:,1),E_monteCarlo(:,4),'v','Color',setcolor('orange'),'LineWidth',linewidth,'MarkerSize', 14);
+legend('latin hypercube','random','Location','northeastoutside');
 xlabel('Number of samples'); % x-axis label
-ylabel('Sigma relative error'); % y-axis label
+ylabel([char(949) '_\sigma']); % y-axis label
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 %title('Relative error of the standad deviation of the samples')
 hold off;
 
@@ -76,7 +87,7 @@ hold off;
 fig = gcf;
 
 fig.PaperPositionMode = 'auto';
-print('-dpng','-r300', 'error_comparison')
+%print('-dpng','-r300', 'error_comparison')
 print('-depsc','-tiff','-r300', 'error_comparison')
 close(fig);
 

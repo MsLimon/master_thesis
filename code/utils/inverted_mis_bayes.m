@@ -17,7 +17,7 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
     p = inputParser;
 
     defaultObjective = 'power';
-    validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained'};
+    validObjective = {'power','symmetry','skew','center','rmse','correlation','constrained','weighted'};
     checkObjective = @(x)any(validatestring(x,validObjective));
     addParameter(p,'objective',defaultObjective,checkObjective);
 
@@ -124,6 +124,12 @@ function[objective, constraint] = inverted_mis_bayes(beta,taperx,yout,M,varargin
         objective = c_mean;
         s_upperBound = 0.30; 
         corr_upperBound = -0.825;
+        case 'weighted'
+        % change all to interval [0,1]
+        c_mean = feat_mean(4)+ 1;
+        s_mean = feat_mean(2);
+        corr_mean = feat_mean(6)+1;
+        objective = 0.25*c_mean+0.25*s_mean+0.5* corr_mean;
     end
     
     % set the constraint

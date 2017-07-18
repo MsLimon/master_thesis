@@ -156,11 +156,11 @@ fig1.Position = [0, 0, f_width, f_height];
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
+plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 14);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat1(:,2);
 % errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
-plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 14);
 %plot the median
  ax = gca;
 % ax.ColorOrderIndex = 1;
@@ -171,7 +171,7 @@ plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize'
 
 %highlight the best power point
 ax.ColorOrderIndex = 7;
-plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*2,'MarkerSize', 14);
+plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*4,'MarkerSize', 16);
 
 % %highlight the best symmetry point
 % ax.ColorOrderIndex = 5;
@@ -188,7 +188,7 @@ switch feat1_id
     ylim([-1 0]);
 end
 %AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
-AX =legend('misalignment points','mean value','best point','Location','northeastoutside');
+AX =legend('misalignment points','objective value','best point','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size,'LineWidth',linewidth);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);

@@ -50,7 +50,7 @@ function [independentSamples,meanError,stdError] = lhseval(pd,n)
 
 l=length(pd);                                                               % number of variables       
 
-x=lhsdesign(n,l,'smooth','off');                                            % generate latin hypercube samples (MATLAB Function, see MATLAB documentation for more information)
+x=lhsdesign(n,l,'smooth','on');                                            % generate latin hypercube samples (MATLAB Function, see MATLAB documentation for more information)
 independent_samples=zeros(n,l);                                             % preallocation for the matrix containing the samples
 predefined_mean = zeros(1,l);                                               % preallocation for the matrix containing the mean of the distribution 
 predefined_std = zeros(1,l);                                                % preallocation for the matrix containing the standard deviation of the distribution
@@ -59,14 +59,14 @@ actual_std = zeros(1,l);                                                    % pr
 for i=1:l
     prob=x(:,i);
     independent_samples(:,i) = icdf(pd{i},prob);                            % map latin hypercube samples to values using inverse cumulative distribution functions
-    predefined_mean(:,i) = mean(pd{i});                                     % Calculate standard deviation and mean of the distribution 
-    predefined_std(:,i) = std(pd{i});
+    predefined_mean(:,i) = pd{1,i}.mu;                                     % Calculate standard deviation and mean of the distribution 
+    predefined_std(:,i) = pd{1,i}.sigma;
     actual_mean(:,i) = mean(independent_samples(:,i));                      % Calculate the standard deviation and mean of the samples
     actual_std(:,i) = std(independent_samples(:,i));
 end
 
 independentSamples = independent_samples;                                   
-meanError = abs(predefined_mean - actual_mean)./predefined_mean;                             % Calculate the error of the mean and standard deviation of the samples.
+meanError = actual_mean;                             % Calculate the error of the mean and standard deviation of the samples.
 % stdError = 100 * abs(predefined_std - actual_std)./actual_std;
 stdError = abs(predefined_std - actual_std)./predefined_std;
 

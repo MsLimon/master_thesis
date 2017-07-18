@@ -196,8 +196,8 @@ hold off
 % plot(x,max_error_vector,'DisplayName',legendname,'LineWidth',linewidth);
 % 
 % xlabel('geometry point number');
-% %ylabel(['max \Delta_{ij}' feature_names(feat1_id)]);
-% ylabel('max \Delta_{ij}');
+% %ylabel(['max \Delta_{f}' feature_names(feat1_id)]);
+% ylabel('max \Delta_{f}');
 % AX = legend('show','Location','northeastoutside');
 % LEG = findobj(AX,'type','text');
 % set(LEG,'FontSize',font_size,'LineWidth',linewidth);

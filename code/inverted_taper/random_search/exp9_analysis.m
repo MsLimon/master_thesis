@@ -33,10 +33,10 @@ resultsfile = [experiment '_results.mat'];
 % resultsPath_align = [currentPath '\results\perfectly_aligned\'];
 outpath = [currentPath f 'results' f 'analysis' f experiment f];
 outstruct_name = [experiment '_analysis.mat'];
-print_pic_p = false;
-print_pic_s = false;
+print_pic_p = true;
+print_pic_s = true;
 print_pic_pareto = false;
-print_pic_surface = true;
+print_pic_surface = false;
 
 % load results data
 load([resultsPath_mis resultsfile]);
@@ -164,11 +164,11 @@ fig1.Position = [0, 0, f_width, f_height];
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
+plot(feat1_plot_vector(:,i+1),feat1_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 14);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat1(:,2);
 % errorbar(G(:,i),statistics_vector_feat1(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
-plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize', 14);
 %plot the median
 % ax.ColorOrderIndex = 1;
 % plot(G(:,i),statistics_vector_feat1(:,end),'*','LineWidth',linewidth);
@@ -179,7 +179,7 @@ plot(G(:,i),statistics_vector_feat1(:,1),'k+','LineWidth',linewidth,'MarkerSize'
 %highlight the best power point
 ax = gca;
 ax.ColorOrderIndex = 7;
-plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*2,'MarkerSize', 14);
+plot(G(best_feat1_id,i),best_feat1,'v','LineWidth',linewidth*4,'MarkerSize', 16);
 
 % %highlight the best symmetry point
 % ax.ColorOrderIndex = 5;
@@ -239,11 +239,11 @@ fig2.Position = [0, 0, f_width, f_height];
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
+plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 14);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat2(:,2);
 %errorbar(G(:,i),statistics_vector_feat2(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
-plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize', 14);
 %plot the median
  ax = gca;
 % ax.ColorOrderIndex = 1;
@@ -254,7 +254,7 @@ plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize'
 
 %highlight the best symmetry point
 ax.ColorOrderIndex = 7;
-plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth*2,'MarkerSize', 14);
+plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth*4,'MarkerSize', 16);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat2_id));

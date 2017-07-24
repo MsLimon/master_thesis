@@ -45,34 +45,44 @@ G = dlmread([resultsPath_mis 'geometry.txt']);
 % dictionaries to swap between objective functions
 feature_ids = {1,2,3,4,5,6};
 feature_names = {'power','symmetry','skew','center','rmse','correlation'};
-feature_labels ={'-P / W m^-^1','S','skewness','-P_{Gaussian} / W m^-^1','rmse / W m^-^1','-C'};
+feature_labels ={'-P ','S','skewness','-P_{Gaussian}','rmse','-C'};
 %feature_labels ={'\epsilon_P ','\epsilon_S','skewness','\epsilon_{P_{Gaussian}}','\epsilon_{rmse}','\epsilon_{C}'};
 select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
 numFeatures = length(feature_ids);
 
+fig2 = figure;
+% select figure size
+f_width = 1700;
+f_height= 500;
+%select line width of the plot lines
+linewidth = 2;
+font_size = 24;
+fig2.Position = [100, 100, f_width, f_height];
+
+
 for k=1:numFeatures
 if k==3
     continue
 end
-fig = figure;
-if print_pic == true
-    % select figure size
-    f_width = 1700;
-    f_height= 500;
-    %select line width of the plot lines
-    linewidth = 2;
-    font_size = 24;
-else
-    % select figure size
-    f_width = 700;
-    f_height = 400;
-    %select line width of the plot lines
-    linewidth = 1;
-    font_size = 10;
-end
-fig.Position = [100, 100, f_width, f_height];
+% fig = figure;
+% if print_pic == true
+%     % select figure size
+%     f_width = 1700;
+%     f_height= 500;
+%     %select line width of the plot lines
+%     linewidth = 2;
+%     font_size = 24;
+% else
+%     % select figure size
+%     f_width = 700;
+%     f_height = 400;
+%     %select line width of the plot lines
+%     linewidth = 1;
+%     font_size = 10;
+% end
+% fig.Position = [100, 100, f_width, f_height];
 
 %select two different features
 
@@ -133,82 +143,82 @@ mean_matrix(:,j) = statistics_vector_feat1(:,1);
 % err = statistics_vector_feat1(:,2);
 % errorbar(x,f1,err,'+','DisplayName',legendname,'LineWidth',linewidth);
 
-hold on
-% subplot(2,1,1);
-x = 1:nGeomPoints;
-f1 = statistics_vector_feat1(:,1);
-f2 = statistics_vector_ref(:,1);
-legendname = sprintf('misalignment set %s',experiment_label{j});
-rel_error = (f1-f2)./abs(f2);
-plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
-
 % hold on
-% subplot(2,1,2);
-% f2 = statistics_vector_feat2(:,1); % symmetry mean
-% %plot(x,f2,'-','DisplayName',legendname,'LineWidth',linewidth);
-% err = statistics_vector_feat2(:,2);
-% errorbar(x,f2,err,'+','DisplayName',legendname,'LineWidth',linewidth);
+% % subplot(2,1,1);
+% x = 1:nGeomPoints;
+% f1 = statistics_vector_feat1(:,1);
+% f2 = statistics_vector_ref(:,1);
+% legendname = sprintf('misalignment set %s',experiment_label{j});
+% rel_error = (f1-f2)./abs(f2);
+% plot(x,f1,'-','DisplayName',legendname,'LineWidth',linewidth);
+% 
+% % hold on
+% % subplot(2,1,2);
+% % f2 = statistics_vector_feat2(:,1); % symmetry mean
+% % %plot(x,f2,'-','DisplayName',legendname,'LineWidth',linewidth);
+% % err = statistics_vector_feat2(:,2);
+% % errorbar(x,f2,err,'+','DisplayName',legendname,'LineWidth',linewidth);
+% % 
+% % xlabel('geometry point number');
+% % ylabel(feature_labels(feat2_id));
+% % AX = legend('show','Location','northeastoutside');
+% % LEG = findobj(AX,'type','text');
+% % set(LEG,'FontSize',font_size,'LineWidth',linewidth);
+% % set(gca,'fontsize',font_size,'LineWidth',linewidth);
+% 
+% end
 % 
 % xlabel('geometry point number');
-% ylabel(feature_labels(feat2_id));
+% ylabel(feature_labels(feat1_id));
+% xlim([0 6])
+% switch k
+%     case 2
+%     ylim([0 1]);
+%     case 5
+%     ylim([0 1]); 
+%     otherwise
+%     ylim([-1 0]);
+end
 % AX = legend('show','Location','northeastoutside');
 % LEG = findobj(AX,'type','text');
 % set(LEG,'FontSize',font_size,'LineWidth',linewidth);
 % set(gca,'fontsize',font_size,'LineWidth',linewidth);
+% hold off
 
-end
+% if k==1
+
+
+max_vector= max(mean_matrix,[],2);
+min_vector = min(mean_matrix,[],2);
+
+max_error_vector =max_vector - min_vector;
+hold on
+
+legendname = sprintf('%s',feature_names{k});
+plot(x,max_error_vector,'DisplayName',legendname,'LineWidth',linewidth);
 
 xlabel('geometry point number');
-ylabel(feature_labels(feat1_id));
-xlim([0 6])
-switch k
-    case 2
-    ylim([0 1]);
-    case 5
-    ylim([0 1]); 
-    otherwise
-    ylim([-1 0]);
-end
+%ylabel(['max \Delta_{f}' feature_names(feat1_id)]);
+ylabel('max \Delta_{f}');
+set(gca,'ytick',1:5)
 AX = legend('show','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size,'LineWidth',linewidth);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
-hold off
+%legend('on');
 
-% if k==1
-% fig2 = figure;
-% % select figure size
-% f_width = 1700;
-% f_height= 500;
-% %select line width of the plot lines
-% linewidth = 2;
-% font_size = 24;
-% fig2.Position = [100, 100, f_width, f_height];
-% end
-% 
-% max_vector= max(mean_matrix,[],2);
-% min_vector = min(mean_matrix,[],2);
-% 
-% max_error_vector =max_vector - min_vector;
-% hold on
-% 
-% legendname = sprintf('%s',feature_names{k});
-% plot(x,max_error_vector,'DisplayName',legendname,'LineWidth',linewidth);
-% 
-% xlabel('geometry point number');
-% %ylabel(['max \Delta_{f}' feature_names(feat1_id)]);
-% ylabel('max \Delta_{f}');
-% AX = legend('show','Location','northeastoutside');
-% LEG = findobj(AX,'type','text');
-% set(LEG,'FontSize',font_size,'LineWidth',linewidth);
-% set(gca,'fontsize',font_size,'LineWidth',linewidth);
-%legend('off');
-
-if print_pic == true
-    % Save plot to vector image .eps
-    picname = ['fix_points_comparison_' feature_names{feat1_id}];
-    print(fig,picname,'-r300','-dpng')
+% if print_pic == true
+%     % Save plot to vector image .eps
+% %     picname = ['fix_points_comparison_' feature_names{feat1_id}];
+% %     print(fig,picname,'-r300','-dpng')
 %     picname2 = ['fix_points_error_' feature_names{feat1_id}];
 %     print(fig2,picname2,'-r300','-dpng')
+% end
 end
+if print_pic == true
+    % Save plot to vector image .eps
+%     picname = ['fix_points_comparison_' feature_names{feat1_id}];
+%     print(fig,picname,'-r300','-dpng')
+    picname2 = ['fix_points_error_' feature_names{feat1_id}];
+    print(fig2,picname2,'-r300','-dpng')
 end

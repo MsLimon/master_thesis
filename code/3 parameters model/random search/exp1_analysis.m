@@ -63,8 +63,8 @@ select_feature = containers.Map(feature_ids,feature_names);
 select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
-feat1_id = 1;
-feat2_id= 5;
+feat1_id = 2;
+feat2_id= 6;
 
 numFeatures = length(feature_ids);
 R_perfect = zeros(nGeomPoints,searchSpace_dim + numFeatures);
@@ -230,11 +230,11 @@ fig2.Position = [0, 0, f_width, f_height];
 hold on;
 
 %plot the results for the experiment with misalignemnt
-plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 10);
+plot(feat2_plot_vector(:,i+1),feat2_plot_vector(:,1),'o','Color',setcolor(selectcolor(i)),'LineWidth',linewidth,'MarkerSize', 14);
 % plot mean and std as error bar (experiment with misalignment)
 err = statistics_vector_feat2(:,2);
 %errorbar(G(:,i),statistics_vector_feat2(:,1),err,'k+','LineWidth',linewidth,'MarkerSize', 10);
-plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize', 10);
+plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize', 14);
 %plot the median
  ax = gca;
 % ax.ColorOrderIndex = 1;
@@ -245,7 +245,7 @@ plot(G(:,i),statistics_vector_feat2(:,1),'k+','LineWidth',linewidth,'MarkerSize'
 
 %highlight the best symmetry point
 ax.ColorOrderIndex = 7;
-plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth*2,'MarkerSize', 14);
+plot(G(best_feat2_id,i),statistics_vector_feat2(best_feat2_id,1),'v','LineWidth',linewidth*4,'MarkerSize', 16);
 
 xlabel(selectlabel(i));
 ylabel(feature_labels(feat2_id));

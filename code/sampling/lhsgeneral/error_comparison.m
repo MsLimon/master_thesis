@@ -59,25 +59,26 @@ font_size = 24;
 %plot mean deviation
 % create a plot figure
 fig1 = figure;
+variable=3;
 
 fig1.Position = [0, 0, f_width, f_height];
 %plot mean deviation
 subplot(2,1,1);
 hold on;
-plot(E_latinHypercube(:,1),E_latinHypercube(:,2),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
+plot(E_latinHypercube(:,1),E_latinHypercube(:,variable+1),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
 plot(E_monteCarlo(:,1),E_monteCarlo(:,2),'v','Color',setcolor('orange'),'LineWidth',linewidth,'MarkerSize', 14);
 legend('latin hypercube','random','Location','northeastoutside');
-xlabel('Number of samples'); % x-axis label
+xlabel('N'); % x-axis label
 ylabel('\mu / \mu m'); % y-axis label
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
 %title('Relative error of the mean of the samples')
 hold off;
 subplot(2,1,2);
 hold on;
-plot(E_latinHypercube(:,1),E_latinHypercube(:,4),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
+plot(E_latinHypercube(:,1),E_latinHypercube(:,variable+4),'o','Color',setcolor('purple'),'LineWidth',linewidth,'MarkerSize', 14);
 plot(E_monteCarlo(:,1),E_monteCarlo(:,4),'v','Color',setcolor('orange'),'LineWidth',linewidth,'MarkerSize', 14);
 legend('latin hypercube','random','Location','northeastoutside');
-xlabel('Number of samples'); % x-axis label
+xlabel('N'); % x-axis label
 ylabel([char(949) '_\sigma']); % y-axis label
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
 %title('Relative error of the standad deviation of the samples')
@@ -88,7 +89,7 @@ fig = gcf;
 
 fig.PaperPositionMode = 'auto';
 %print('-dpng','-r300', 'error_comparison')
-print('-depsc','-tiff','-r300', 'error_comparison')
+print('-depsc','-tiff','-r300', 'error_comparison_gamma')
 close(fig);
 
 % save the data

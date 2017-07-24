@@ -1,5 +1,5 @@
 %plot error evaluation results
-method = 2;
+method = 1;
 
 switch method
     case 1
@@ -29,7 +29,7 @@ ylabel('\mu / \mu m'); % y-axis label
 ylim([0 0.5]);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
 subplot(2,1,2);
-plot(E(:,1),E(:,4),'o','Color',[0.8706 0.4902 0],'LineWidth',linewidth,'MarkerSize', 14);
+plot(E(:,1),E(:,5),'o','Color',[0.8706 0.4902 0],'LineWidth',linewidth,'MarkerSize', 14);
 % colors: yellow [1  0.8431 0], green [0.1647 0.3843 0.2745]
 % orange [0.8706 0.4902 0], purple [0.4941 0.1843 0.5569]
 %axis([0,50,-1,1])

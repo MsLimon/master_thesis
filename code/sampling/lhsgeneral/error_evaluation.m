@@ -54,7 +54,7 @@ plot(E(:,1),E(:,2),'o','Color',[0.4941 0.1843 0.5569]);
 xlabel('N'); % x-axis label
 ylabel([char(949) '_\mu']); % y-axis label
 subplot(2,1,2);
-plot(E(:,1),E(:,4),'o','Color',[0.8706 0.4902 0]);
+plot(E(:,1),E(:,5),'o','Color',[0.8706 0.4902 0]);
 % colors: yellow [1  0.8431 0], green [0.1647 0.3843 0.2745]
 % orange [0.8706 0.4902 0], purple [0.4941 0.1843 0.5569]
 %axis([0,50,-1,1])

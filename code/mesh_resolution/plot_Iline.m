@@ -1,5 +1,5 @@
 % set to true to change the figure appearance to print the image
-print_pic = false;
+print_pic = true;
 
 fig = figure;
 
@@ -44,7 +44,7 @@ hold off;
 LEG=legend('show','Location','northeast');
 v = get(LEG,'title');
 set(v,'string','N');
-xlabel('Output facet length / um');
+xlabel('Output facet length / \mu m');
 ylabel('I / mW mm^-^2');
 set(LEG,'FontSize',font_size);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
@@ -52,6 +52,7 @@ set(gca,'fontsize',font_size,'LineWidth',linewidth);
 % save the results to an ASCII-delimited text file
 R = dlmread('mesh_study_results.txt');
 % -------plot results------
+fi2=figure;
 % get the power corresponding to the solution with highest resolution
 P_accurate = R(end,end);
 % subtact the most accurate solution to the results to see if the solutions
@@ -68,13 +69,13 @@ ylabel('Relative error');
 xlim([1 8])
 % Save plot to jpeg file
 
-fig = gcf;
-fig.Position = [100, 100, f_width, f_height];
+fig2 = gcf;
+fig2.Position = [100, 100, f_width, f_height];
 set(gca,'FontSize',font_size,'LineWidth',linewidth);
 
 picname = 'meshResolutionStudy';
 %saveas(fig,[outpath picname],'jpeg');
-print(fig, picname,'-r300','-dpng')
+print(fig2, picname,'-r300','-dpng')
 
 
 if print_pic == true

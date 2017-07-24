@@ -187,7 +187,7 @@ hold off;
 if print_pic_p == true
 % Save plot to vector image .eps
 fig1.PaperPositionMode = 'auto';
-filename_Pplot = ['randomSearch_misalignment_' select_feature(feat_id) '_' parameter_names{i}];
+filename_Pplot = ['bayesopt_misalignment_' select_feature(feat_id) '_' parameter_names{i}];
 print(fig1,'-dpng','-r300', [outpath filename_Pplot])
 print(fig1,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end

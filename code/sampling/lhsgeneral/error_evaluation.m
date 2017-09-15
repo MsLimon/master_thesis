@@ -36,7 +36,7 @@ i = 1;
 for n = num_samples
     for k = 1:iterations
         
-	[samples,me,se] = lhseval(pd,n);
+	[samples,me,se] = montecarloeval(pd,n);
     E(i,:) = [n, me, se];
     i = i+1;
     end
@@ -84,7 +84,7 @@ print('-depsc','-tiff','-r300', ['.' f 'graphics' f 'error_comparison' f 'error_
 close(fig);
 
 % save the data
-     fnam='error_results_test_lhs.txt'; % <- your data file
+     fnam='error_results_test_rs.txt'; % <- your data file
 %      hdr={'number of samples','mean error x dist','mean error y dist','std error x dist','std error y dist'};
 %      % the engine
 %      txt=sprintf('%s\t',hdr{:});

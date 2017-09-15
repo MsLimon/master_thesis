@@ -54,6 +54,9 @@ select_feat_label = containers.Map(feature_ids,feature_labels);
 numFeatures = length(feature_ids);
 max_error = zeros(nExperiments,numFeatures);
 for k=1:numFeatures
+%     if k==2
+%         break
+%     end
 if k==3
     continue
 end
@@ -63,7 +66,7 @@ feat1_id = k;
 fig = figure;
 if print_pic == true
     % select figure size
-    f_width = 1700;
+    f_width = 900;
     f_height= 500;
     %select line width of the plot lines
     linewidth = 2;

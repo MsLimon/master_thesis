@@ -29,11 +29,11 @@ switch print_pic_value
 end        
 if print_pic == true
     % select figure size
-    f_width = 1400;
-    f_height = 700;
+    f_width = 1300;
+    f_height= 700;
     %select line width of the plot lines
-    linewidth = 1.5;
-    font_size = 14;
+    linewidth = 2;
+    font_size = 26;
 else
     % select figure size
     f_width = 700;
@@ -43,8 +43,7 @@ else
     font_size = 10;
 end
 fig.Position = [100, 100, f_width, f_height];
-
-plot(x,f,'s','LineWidth',linewidth,'DisplayName','regular solutions');
+plot(x,f,'s','LineWidth',linewidth,'MarkerSize', 12,'DisplayName','regular solutions','MarkerSize', 14);
 hold on
 %limvec = 0.07:0.0005:0.1;
 % TODO - automatically find the contraint boundaries (look for min of each
@@ -78,5 +77,6 @@ x_pareto = x_pareto(I);
 plot(x_pareto,f_pareto,'-','LineWidth',linewidth,'DisplayName','pareto front');
 
 set(LEG,'FontSize',font_size);
-set(gca,'fontsize',font_size);
+%set(gca,'fontsize',font_size);
+set(gca,'fontsize',font_size,'LineWidth',linewidth);
 end

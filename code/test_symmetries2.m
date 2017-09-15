@@ -15,7 +15,7 @@ print_pic = false;
 
 %load the Iline_data
 
-data_i= 23;
+data_i= 20;
 exp_num = 1;
 Iline_data = data(data_i).Iline;
 [n,m] = size(Iline_data);
@@ -47,19 +47,21 @@ similarity = centralCorr(Iline_data);
 i = 1; % perfectly aligned data
 j = 22;
 x1 = Iline_data(:,(2*i)-1); 
-f1 = Iline_data(:,2*i)*1e-3; 
+%f1 = Iline_data(:,2*i)*1e-3; 
+f1 = zeros(num_points,1);
 x2 = Iline_data(:,(2*j)-1);
-f2 = Iline_data(:,2*j)*1e-3;
+%f2 = Iline_data(:,2*j)*1e-3;
+f2 = gausswin(num_points);
 
-C = normxcorr2(f1,f2);
-midrow = C(ceil(end/2), :);
-
-diff = (f2-f1);
-RMSE = sqrt((1/num_points)*sum((diff).^2));
-f1f2 = [f1;f2];
-max_f = max(f1f2);
-min_f = min(f1f2);
-NRMSE = RMSE/(max_f - min_f);
+% C = normxcorr2(f1,f2);
+% midrow = C(ceil(end/2), :);
+% 
+% diff = (f2-f1);
+% RMSE = sqrt((1/num_points)*sum((diff).^2));
+% f1f2 = [f1;f2];
+% max_f = max(f1f2);
+% min_f = min(f1f2);
+% NRMSE = RMSE/(max_f - min_f);
 
 figure1 = figure;
 

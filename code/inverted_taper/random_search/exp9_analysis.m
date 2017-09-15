@@ -1,6 +1,6 @@
 % Developed by Marta Timon
 % University of Freiburg, Germany
-% Last Update: Junly 16, 2017
+% Last Update: July 16, 2017
 % 
 % Extract and analyze the results of exp1 (random search with misalignment)
 
@@ -34,7 +34,7 @@ resultsfile = [experiment '_results.mat'];
 outpath = [currentPath f 'results' f 'analysis' f experiment f];
 outstruct_name = [experiment '_analysis.mat'];
 print_pic_p = true;
-print_pic_s = true;
+print_pic_s = false;
 print_pic_pareto = false;
 print_pic_surface = false;
 
@@ -63,7 +63,7 @@ select_feat_label = containers.Map(feature_ids,feature_labels);
 
 %select two different features
 feat1_id = 1;
-feat2_id= 4;
+feat2_id= 6;
 
 numFeatures = length(feature_ids);
 R_perfect = zeros(nGeomPoints,searchSpace_dim + numFeatures);
@@ -137,11 +137,11 @@ selectlabel = containers.Map(numbers,xlabelvalues);
 
 if print_pic_p == true
     % select figure size
-    f_width = 1700;
+    f_width = 1600;
     f_height= 1000;
     %select line width of the plot lines
     linewidth = 2;
-    font_size = 24;
+    font_size = 34;
 else
     % select figure size
     f_width = 700;
@@ -196,7 +196,8 @@ switch feat1_id
     ylim([-1 0]);
 end
 %AX =legend('misalignment points','mean value','median value','perfectly aligned','best point','Location','northeastoutside');
-AX =legend('misalignment points','mean value','best point','Location','northeastoutside');
+% AX =legend('misalignment points','mean value','best point','Location','northeastoutside');
+AX =legend('misalignment points','mean value','best point','Location','northeast');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size,'LineWidth',linewidth);
 set(gca,'fontsize',font_size,'LineWidth',linewidth);
@@ -297,12 +298,16 @@ num_p = 20;
 std_lim = linspace(x_max,x_min,num_p);
 % TODO - automatically find the contraint boundaries (look for min of each
 % function(mean and std) and get the corresponding std)
-[pareto_front,fig3] = pareto_plot(x,f,std_lim,'print','true');
-
+if print_pic_pareto == true
+    [pareto_front,fig3] = pareto_plot(x,f,std_lim,'print','true');
+else
+    [pareto_front,fig3] = pareto_plot(x,f,std_lim,'print','false');
+end
 %plot(x,f,'s','LineWidth',linewidth);
 xlabel([select_feature(feat1_id) ' mean']);
 ylabel([select_feature(feat2_id) ' mean']);
-set(gca,'fontsize',font_size);
+% set(gca,'fontsize',font_size);
+% set(gca,'fontsize',font_size,'LineWidth',linewidth);
 
 if print_pic_pareto == true
 % Save plot to vector image .eps
@@ -316,11 +321,11 @@ fig4 = figure;
 
 if print_pic_surface == true
     % select figure size
-    f_width = 1700;
-    f_height= 1000;
+    f_width = 1150;
+    f_height= 700;
     %select line width of the plot lines
-    linewidth = 2;
-    font_size = 24;
+    linewidth = 1.5;
+    font_size = 30;
 else
     % select figure size
     f_width = 700;
@@ -329,6 +334,11 @@ else
     linewidth = 1;
     font_size = 10;
 end
+
+% close(fig);
+close(fig1);
+close(fig2);
+close(fig3);
 
 fig4.Position = [0, 0, f_width, f_height];
 
@@ -350,12 +360,15 @@ plot3(beta,y_out,v,'o','LineWidth',linewidth,'MarkerSize', 12);
 %highlight the best power point
 ax = gca;
 ax.ColorOrderIndex = 7;
-plot3(G(best_feat1_id,1),G(best_feat1_id,3),best_feat1,'v','LineWidth',linewidth*4,'MarkerSize', 14);
+plot3(G(best_feat1_id,1),G(best_feat1_id,3),best_feat1,'v','LineWidth',linewidth*4,'MarkerSize', 12);
 xlabel('beta / rad');
 ylabel('y_o_u_t / um');
 zlabel(feature_labels(feat1_id));
-set(gca,'fontsize',font_size,'LineWidth',linewidth);
+set(gca,'fontsize',font_size,'LineWidth',linewidth,'YTick',[2 4 6 8 10],'YTickLabel',...
+    {'2','4','6','8','10'});
 switch feat1_id
+    case 1
+    zlim([-1.3 -0.5]);
     case 2
     zlim([0 1]);
     case 5
@@ -365,7 +378,8 @@ switch feat1_id
 end
 switch feat1_id
     case 1
-    view(ax,[211.3 28.4]);
+%     view(ax,[-165.9 52.4]);
+    view(ax,[-154.7 45.2]);
     case 2
     view(ax,[-19.1000000000001 46]);
     case 4
@@ -384,4 +398,6 @@ filename_Pplot = [experiment '_interpolated_objective_' select_feature(feat1_id)
 print(fig4,'-dpng','-r300', [outpath filename_Pplot])
 print(fig4,'-depsc','-tiff','-r300', [outpath filename_Pplot])
 end
+
+%close(fig4);
 

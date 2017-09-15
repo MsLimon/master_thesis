@@ -54,7 +54,7 @@ numFeatures = length(feature_ids);
 
 fig2 = figure;
 % select figure size
-f_width = 1700;
+f_width = 1000;
 f_height= 500;
 %select line width of the plot lines
 linewidth = 2;
@@ -193,14 +193,15 @@ min_vector = min(mean_matrix,[],2);
 
 max_error_vector =max_vector - min_vector;
 hold on
-
+x = 1:nGeomPoints;
 legendname = sprintf('%s',feature_names{k});
 plot(x,max_error_vector,'DisplayName',legendname,'LineWidth',linewidth);
 
 xlabel('geometry point number');
 %ylabel(['max \Delta_{f}' feature_names(feat1_id)]);
-ylabel('max \Delta_{f}');
-set(gca,'ytick',1:5)
+%ylabel('max \Delta_{f}');
+ylabel('maximum difference');
+%set(gca,'ytick',1:5)
 AX = legend('show','Location','northeastoutside');
 LEG = findobj(AX,'type','text');
 set(LEG,'FontSize',font_size,'LineWidth',linewidth);
